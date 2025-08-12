@@ -1,0 +1,129 @@
+* {
+  scrollbar-width: thin;
+}
+
+html {
+  scroll-behavior: smooth;
+  min-height: 100vh;
+  background-color: theme("colors.primary");
+  background-image: linear-gradient(
+    to bottom,
+    theme("colors.primary"),
+    theme("colors.primary" / 70%),
+    theme("colors.black" / 30%)
+  );
+  &.dark {
+    background-color: theme("colors.darkmode.700");
+    background-image: linear-gradient(
+      to bottom,
+      theme("colors.darkmode.800"),
+      theme("colors.darkmode.800" / 70%)
+    );
+    body {
+      color: theme("colors.slate.300");
+      *,
+      ::before,
+      ::after {
+        border-color: theme("colors.white" / 5%);
+      }
+    }
+  }
+  body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-family: theme("fontFamily.roboto");
+    font-size: theme("fontSize.sm");
+    line-height: theme("lineHeight.5");
+    color: theme("colors.slate.700");
+  }
+}
+
+::-webkit-scrollbar {
+  width: 5px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: rgb(179, 179, 179);
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+.dark
+  .css-1xnbq41-MuiAutocomplete-root
+  .MuiOutlinedInput-root.MuiInputBase-sizeSmall {
+  box-shadow: none !important;
+  outline: none !important;
+  color: inherit;
+  font-size: 14px;
+}
+
+.custom-select .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline {
+  border-color: rgb(226, 232, 240);
+}
+
+.dark .custom-select .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline {
+  color: white !important;
+}
+
+.dark
+  .custom-select
+  .MuiOutlinedInput-root.Mui-disabled
+  .MuiOutlinedInput-notchedOutline {
+  border-color: inherit;
+}
+
+.dark .custom-select .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline {
+  border-color: inherit;
+}
+
+.dark svg.MuiSvgIcon-root.MuiSvgIcon-fontSizeSmall.css-ptiqhd-MuiSvgIcon-root,
+.dark svg.MuiSvgIcon-root.MuiSvgIcon-fontSizeMedium.css-i4bv87-MuiSvgIcon-root {
+  color: rgb(184, 188, 194);
+}
+
+.custom-select
+  .MuiOutlinedInput-root.Mui-focused
+  .MuiOutlinedInput-notchedOutline {
+  border-color: rgb(184, 188, 194);
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+}
+
+.custom-select
+  .MuiOutlinedInput-root.Mui-disabled
+  .MuiOutlinedInput-notchedOutline {
+  border-color: rgb(226, 232, 240);
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+  background-color: rgb(231, 234, 238);
+}
+
+.custom-select .Mui-disabled .MuiInputBase-input {
+  color: inherit;
+  z-index: 999;
+}
+.dark
+  .custom-select
+  .MuiOutlinedInput-root.Mui-disabled
+  .MuiOutlinedInput-notchedOutline {
+  background-color: #2d3c5a;
+}
+
+.css-1xnbq41-MuiAutocomplete-root.Mui-focused
+  .MuiOutlinedInput-root.MuiInputBase-sizeSmall
+  .MuiAutocomplete-input {
+  box-shadow: none;
+}
+
+.MuiAutocomplete-input:focus {
+  box-shadow: none;
+}
