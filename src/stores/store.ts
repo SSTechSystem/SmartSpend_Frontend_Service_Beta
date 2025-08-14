@@ -10,9 +10,10 @@ import permissionReducer from "./managePermission";
 import companyReducer from "./company";
 import listReducer from "./commonList";
 import accountsReducer from "./accounts";
-import userReducer from "./user";
+import userReducer from "./customer";
 import logsReducer from "./logs";
 import moduleReducer from "./module";
+import profileReducer from "./profile";
 
 export const store = configureStore({
   reducer: {
@@ -30,6 +31,7 @@ export const store = configureStore({
     list: listReducer,
     logs: logsReducer,
     module: moduleReducer,
+    profile: profileReducer
   },
 });
 

@@ -4,49 +4,53 @@ import clsx from "clsx";
 import { useAppDispatch, useAppSelector } from "../../stores/hooks";
 import Button from "../../base-components/Button";
 import { useNavigate } from "react-router-dom";
-import { getUserData, setLoginUserData } from "../../stores/dashboard";
-import Lucide from "../../base-components/Lucide";
+import { getProfileData, setProfileData } from "../../stores/profile";
 import LoadingIcon from "../../base-components/LoadingIcon";
 import { toast } from "react-toastify";
-import { updateUserProfile } from "../../stores/user";
+import { updateProfile } from "../../stores/profile";
 import { USERNAME_REGEX } from "../../utils/constants";
 import secureLocalStorage from "react-secure-storage";
 import LoaderIcon from "../Loader/LoaderIcon";
 
 const initialState = {
+  id: null,
   name: "",
-  password: "",
+  email: "",
+  phone: "",
 };
 
 type TextInputState = {
+  id: number | null;
   name: string;
-  password: string;
+  email: string;
+  phone: string;
 };
 
 type FormState = TextInputState;
 
 type ErrorState = {
   name: string;
+  phone: string;
 };
 
 const ProfileForm: React.FC = () => {
   const [initFormData, setInitFormData] = useState<FormState>({
     ...initialState,
   });
-  const userState: any = useAppSelector(getUserData);
+  const profileState: any = useAppSelector(getProfileData);
   const [formErrors, setFormErrors] = useState<ErrorState>({
     name: "",
+    phone: "",
   });
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isProfileDataLoading, setIsProfileDataLoading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
   const dispatch = useAppDispatch();
 
   useEffect(() => {
     const fetchProfileData = async () => {
       try {
         setIsProfileDataLoading(true);
-        await dispatch(setLoginUserData());
+        await dispatch(setProfileData());
       } catch (error) {
         console.log("Err-", error);
       } finally {
@@ -57,13 +61,15 @@ const ProfileForm: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    if (userState.user !== null) {
+    if (profileState.name !== null || profileState.phone !== null || profileState.email !== null) {
       setInitFormData((prev) => ({
         ...prev,
-        name: userState.user.name || "",
+        name: profileState.name || "",
+        phone: profileState.phone || "",
+        email: profileState.email || "",
       }));
     }
-  }, [userState.user]);
+  }, [profileState.name,profileState.phone,profileState.email]);
   const navigate = useNavigate();
 
   const handleInputChange = (
@@ -83,6 +89,12 @@ const ProfileForm: React.FC = () => {
         }));
       }
     }
+    if(fieldName === 'phone') {
+      setFormErrors((prev) => ({
+        ...prev,
+        phone: value ? "" : "Phone number is required",
+      }));
+    }
     setInitFormData((prevState) => ({
       ...prevState,
       [fieldName]: value,
@@ -91,22 +103,26 @@ const ProfileForm: React.FC = () => {
 
   const submitUserInfo = async (e: React.ChangeEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const errors: { name: string } = { name: "" };
+    const errors: { name: string, phone: string } = { name: "", phone: "" };
     if (initFormData.name === "") {
       errors.name = "Name is required";
-      setFormErrors(errors);
     }
-    if (errors.name) return;
+    if (initFormData.phone === "") {
+      errors.phone = "Phone number is required";
+    }
+    setFormErrors(errors);
+    if (errors.name || errors.phone) return;
     try {
       setIsLoading(true);
       const payload = {
         name: initFormData.name,
-        ...(initFormData.password && { password: initFormData.password }),
+        phone: initFormData.phone,
+        email: initFormData.email
       };
-      const res = await dispatch(updateUserProfile(payload));
+      const res = await dispatch(updateProfile(payload));
       if (res.payload.data === undefined)
         return toast.error("Something went wrong");
-      secureLocalStorage.setItem("username", JSON.stringify(payload.name));
+      secureLocalStorage.setItem("username",payload.name);
       toast.success(res.payload.data?.message || "User updated successfully");
       navigate("/dashboard");
     } catch (error) {
@@ -148,77 +164,38 @@ const ProfileForm: React.FC = () => {
             )}
           </div>
           <div className="col-span-12 intro-y sm:col-span-6">
-            <FormLabel htmlFor="input-wizard-2">Password</FormLabel>
+            <FormLabel htmlFor="input-wizard-2">Email</FormLabel>
             <FormInput
               id="input-wizard-2"
-              type={showPassword ? "text" : "password"}
-              name="password"
-              onInput={(e: ChangeEvent<HTMLInputElement>) =>
-                handleInputChange(e, "password")
-              }
-              placeholder="Enter Password"
-              value={initFormData.password}
+              name="email"
+              value={initFormData.email}
+              disabled
             />
-            <div
-              className={`absolute inset-y-0 right-2 flex items-center cursor-pointer mt-7`}
-              onClick={() => setShowPassword(!showPassword)}
-            >
-              {showPassword ? (
-                <Lucide icon="EyeOff" className="h-5 w-5 text-gray-500" />
-              ) : (
-                <Lucide icon="Eye" className="h-5 w-5 text-gray-500" />
-              )}
-            </div>
           </div>
-          <div className="col-span-12 sm:col-span-6 intro-y">
-            <FormLabel
-              htmlFor="input-wizard-1"
-              className="flex justify-between"
-            >
-              <span>Email</span>
+          <div className="col-span-12 intro-y sm:col-span-6">
+            <FormLabel htmlFor="input-wizard-1">
+              Phone <span className="text-red-600 font-bold">*</span>
             </FormLabel>
-            <section className="font-bold mt-3">
-              {userState?.user?.email}
-            </section>
-          </div>
-          {userState?.user?.company_id && (
-            <div className="col-span-12 sm:col-span-6 intro-y">
-              <FormLabel
-                htmlFor="input-wizard-1"
-                className="flex justify-between"
-              >
-                <span>Company</span>
-              </FormLabel>
-              <section className="font-bold uppercase mt-3">
-                {userState?.user?.company_name}
-              </section>
-            </div>
-          )}
-
-          {userState?.user?.account_name && (
-            <div className="col-span-12 sm:col-span-6 intro-y">
-              <FormLabel
-                htmlFor="input-wizard-1"
-                className="flex justify-between"
-              >
-                <span>Account</span>
-              </FormLabel>
-              <section className="font-bold uppercase mt-3">
-                {userState.user.account_name}
-              </section>
-            </div>
-          )}
-
-          <div className="col-span-12 sm:col-span-6 intro-y">
-            <FormLabel
-              htmlFor="input-wizard-1"
-              className="flex justify-between"
-            >
-              <span>Role</span>
-            </FormLabel>
-            <section className="font-bold uppercase mt-3">
-              {userState?.user?.role?.role_name}
-            </section>
+            <FormInput
+              id="input-wizard-1"
+              type="text"
+              name="phone"
+              className={clsx({
+                "border-danger dark:border-red-500": formErrors.phone,
+              })}
+              onInput={(e: ChangeEvent<HTMLInputElement>) =>
+                handleInputChange(e, "phone")
+              }
+              autoComplete="phone"
+              aria-autocomplete="inline"
+              placeholder="Enter Phone Number"
+              value={initFormData.phone}
+            />
+            {formErrors.phone && (
+              <div className="mt-2 text-xs sm:text-sm text-danger dark:text-red-500">
+                {typeof formErrors.phone === "string" && formErrors.phone}
+              </div>
+            )}
           </div>
 
           <div className="flex items-center col-span-12 mt-5 gap-5 intro-y">

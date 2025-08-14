@@ -10,7 +10,7 @@ import secureLocalStorage from "react-secure-storage";
 import BreadCrumbCompo from "../BreadCrumb";
 import { removeItemFromLocalStorage } from "../../stores/sideMenuSlice";
 import { useEffect, useState } from "react";
-import { getUserData, setLoginUserData } from "../../stores/dashboard";
+import { getDashboardData } from "../../stores/dashboard";
 import moment from "moment";
 import { DATE_TIME_FORMAT, SUCCESS_CODE } from "../../utils/constants";
 import { selectDarkMode, setDarkMode } from "../../stores/darkModeSlice";
@@ -28,21 +28,15 @@ function Main(props: {
   const [message, setMessage] = useState("");
   const breadcrumbs = BreadCrumbCompo();
   const navigate = useNavigate();
-  const userName = JSON.parse(
-    secureLocalStorage.getItem("username") ?? ("null" as any)
-  );
-  const dashboardState = useAppSelector(getUserData);
+  const userName = secureLocalStorage.getItem("username") ?? null as any;
+  const dashboardState = useAppSelector(getDashboardData);
   const dispatch = useAppDispatch();
   const darkMode = useAppSelector(selectDarkMode);
   const colorScheme = useAppSelector(selectColorScheme);
 
   useEffect(() => {
-    fetchAllPermissions();
-  }, []);
-
-  useEffect(() => {
-    if (dashboardState?.user?.last_login) {
-      const lastLoginText = moment(dashboardState?.user?.last_login).format(
+    if (dashboardState?.dashboard?.lastLogin) {
+      const lastLoginText = moment(dashboardState?.dashboard?.lastLogin).format(
         DATE_TIME_FORMAT
       );
       setMessage(`Last Login - ${lastLoginText}`);
@@ -53,7 +47,7 @@ function Main(props: {
 
       return () => clearTimeout(timer);
     }
-  }, [dashboardState?.user?.last_login]);
+  }, [dashboardState?.dashboard?.lastLogin]);
 
   useEffect(() => {
     setColorSchemeClass();
@@ -75,10 +69,6 @@ function Main(props: {
     dispatch(setColorScheme(colorScheme));
     localStorage.setItem("colorScheme", colorScheme);
     setColorSchemeClass();
-  };
-
-  const fetchAllPermissions = async () => {
-    await dispatch(setLoginUserData());
   };
 
   const logout = async () => {

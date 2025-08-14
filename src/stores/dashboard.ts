@@ -3,24 +3,23 @@ import { RootState } from "./store";
 import { API_PATH } from "../api-services/apiPath";
 import { makeApiCall } from "../api-services/makeApiCall";
 import { SUCCESS_CODE } from "../utils/constants";
-import secureLocalStorage from "react-secure-storage";
 
 // interface type of dashboard values
 interface DashboardState {
-  user: Object | any;
+  dashboard: Object | any;
   error: boolean;
   loading: boolean;
 }
 
 // define state value
 const initialState: DashboardState = {
-  user: null,
+  dashboard: null,
   error: false,
   loading: false,
 };
 
-export const setLoginUserData = createAsyncThunk(
-  "auth/setLoginUserData",
+export const setDashboardData = createAsyncThunk(
+  "auth/setDashboardData",
   async (_, { dispatch }) => {
     const resposne = await dispatch(
       makeApiCall({
@@ -33,44 +32,30 @@ export const setLoginUserData = createAsyncThunk(
 );
 
 // create store with auth namespace
-
 export const dashboardStore = createSlice({
   name: "dashboard",
   initialState,
   reducers: {
     resetUserData: (state) => {
-      state.user = null;
+      state.dashboard = null;
       state.error = false;
       state.loading = false;
     },
   },
   extraReducers(builder) {
     builder
-      .addCase(setLoginUserData.pending, (state) => {
+      .addCase(setDashboardData.pending, (state) => {
         state.loading = true;
       })
-      .addCase(setLoginUserData.fulfilled, (state, action) => {
+      .addCase(setDashboardData.fulfilled, (state, action) => {
         if (action.payload?.status === SUCCESS_CODE) {
-          state.user = action.payload.data.data;
-          secureLocalStorage.setItem("user", JSON.stringify(state.user));
-          secureLocalStorage.setItem(
-            "role",
-            action.payload.data.data.role.role_name
-          );
-          // secureLocalStorage.setItem(
-          //   "permissions",
-          //   JSON.stringify(action.payload.data.data.permissions)
-          // );
-          secureLocalStorage.setItem(
-            "username",
-            JSON.stringify(action.payload.data.data.name)
-          );
+          state.dashboard = action.payload.data.data;
           state.loading = false;
           state.error = false;
         }
       })
-      .addCase(setLoginUserData.rejected, (state) => {
-        state.user = null;
+      .addCase(setDashboardData.rejected, (state) => {
+        state.dashboard = null;
         state.loading = false;
         state.error = true;
       });
@@ -78,7 +63,7 @@ export const dashboardStore = createSlice({
 });
 
 // getters of state with toke and user
-export const getUserData = (state: RootState) => state.dashboard;
+export const getDashboardData = (state: RootState) => state.dashboard;
 export const { resetUserData } = dashboardStore.actions;
 
 export default dashboardStore.reducer;

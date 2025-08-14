@@ -498,7 +498,7 @@ function Main() {
                                             import.meta.env
                                               .VITE_REACT_APP_COMPANY_IMAGE_URL
                                           }/${company.logo}`
-                                        : `/sskit/user.png`
+                                        : `/smartspend/user.png`
                                     }
                                     onClick={() => {
                                       if (company.logo) {

@@ -7,7 +7,7 @@ import { SUCCESS_CODE } from "../utils/constants";
 type RoleListType = {
   enable: number;
   id: number;
-  role_name: string;
+  name: string;
 };
 // interface type of role values
 interface roleState {
@@ -16,10 +16,6 @@ interface roleState {
   loading: boolean;
   role: Object | null;
 }
-
-type RoleApiType = {
-  type: "forlistingpage" | "fordropdown";
-};
 
 // define state value
 const initialState: roleState = {
@@ -31,52 +27,11 @@ const initialState: roleState = {
 
 export const fetchAllRoles = createAsyncThunk(
   "role/fetchAllRoles",
-  async (data: RoleApiType, { dispatch }) => {
+  async (_, { dispatch }) => {
     const resposne = await dispatch(
       makeApiCall({
         method: "get",
-        url: `${API_PATH.GET_ALL_ROLES}?type=${data.type}`,
-      })
-    );
-    return resposne.payload;
-  }
-);
-
-export const addRole = createAsyncThunk(
-  "role/addRole",
-  async (data: any, { dispatch }) => {
-    const resposne = await dispatch(
-      makeApiCall({
-        method: "post",
-        data,
-        url: `${API_PATH.ADD_ROLE}`,
-      })
-    );
-    return resposne.payload;
-  }
-);
-
-export const updateSingleRole = createAsyncThunk(
-  "role/updateSingleRole",
-  async (data: any, { dispatch }) => {
-    const resposne = await dispatch(
-      makeApiCall({
-        method: "put",
-        url: `${API_PATH.EDIT_ROLE}`,
-        data,
-      })
-    );
-    return resposne.payload;
-  }
-);
-
-export const fetchSingleRole = createAsyncThunk(
-  "role/fetchSingleRole",
-  async (id: number, { dispatch }) => {
-    const resposne = await dispatch(
-      makeApiCall({
-        method: "get",
-        url: `${API_PATH.GET_SINGLE_ROLE}/${id}?type=forgetbyid`,
+        url: `${API_PATH.GET_ALL_ROLES}`,
       })
     );
     return resposne.payload;
@@ -106,34 +61,6 @@ export const roleStore = createSlice({
         state.loading = false;
         state.error = true;
       })
-      .addCase(addRole.pending, (state) => {
-        state.loading = true;
-      })
-      .addCase(addRole.fulfilled, (state, action) => {
-        if (action.payload?.status === SUCCESS_CODE) {
-          state.loading = false;
-          state.error = false;
-        }
-      })
-      .addCase(addRole.rejected, (state) => {
-        state.error = true;
-        state.loading = false;
-      })
-      .addCase(fetchSingleRole.pending, (state) => {
-        state.loading = true;
-      })
-      .addCase(fetchSingleRole.fulfilled, (state, action) => {
-        if (action.payload?.status === SUCCESS_CODE) {
-          state.role = action.payload.data.data;
-          state.loading = false;
-          state.error = false;
-        }
-      })
-      .addCase(fetchSingleRole.rejected, (state) => {
-        state.error = true;
-        state.role = null;
-        state.loading = false;
-      });
   },
 });
 

@@ -1,4 +1,4 @@
-export const SUPER_ADMIN: string = "super_admin";
+export const SUPER_ADMIN: string = "Admin";
 export const COMPANY_ADMIN: string = "company_admin";
 export const COMPANY_STANDARD: string = "company_standard";
 export const DRIVER: string = "driver";

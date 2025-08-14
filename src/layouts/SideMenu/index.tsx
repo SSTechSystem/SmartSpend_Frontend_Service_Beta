@@ -10,7 +10,6 @@ import {
 import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import useCallbackState from "../../utils/callback-state";
 import {
-  fetchPermissions,
   removeItemFromLocalStorage,
   selectSideMenu,
 } from "../../stores/sideMenuSlice";
@@ -45,13 +44,6 @@ function Main() {
   useEffect(() => {
     setFormattedMenu(sideMenu());
   }, [sideMenuStore, location.pathname]);
-
-  useEffect(() => {
-    const fetchAllPermissions = async () => {
-      await dispatch(fetchPermissions());
-    };
-    fetchAllPermissions();
-  }, []);
 
   useEffect(() => {
     const handleResize = () => setScreenWidth(window.innerWidth);

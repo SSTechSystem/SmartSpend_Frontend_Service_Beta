@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Button from "../../base-components/Button";
-import { verifyUser } from "../../stores/user";
+import { verifyUser } from "../../stores/customer";
 import { useAppDispatch } from "../../stores/hooks";
 import { useNavigate } from "react-router-dom";
 import Lucide from "../../base-components/Lucide";

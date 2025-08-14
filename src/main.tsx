@@ -18,7 +18,7 @@ const App = () => {
 
   return (
     <ThemeProvider theme={theme}>
-      <BrowserRouter basename="/sskit/">
+      <BrowserRouter basename="/smartspend/">
         <Router />
         <ScrollToTop />
       </BrowserRouter>

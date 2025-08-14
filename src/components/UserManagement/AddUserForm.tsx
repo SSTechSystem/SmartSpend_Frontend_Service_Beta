@@ -12,8 +12,8 @@ import {
   addUser,
   editUser,
   fetchSingleUser,
-  getUsersData,
-} from "../../stores/user";
+  getCustomersData,
+} from "../../stores/customer";
 import { validateUserInfo } from "../../utils/validations";
 import { fetchAllRoles } from "../../stores/manageRole";
 import { toast } from "react-toastify";
@@ -69,7 +69,7 @@ const AddUserForm: React.FC = () => {
   const [isSelectLoading, setIsSelectLoading] = useState<boolean>(false);
   const [isFormValid, setIsFormValid] = useState(false);
   const [formErrors, setFormErrors] = useState<Partial<ErrorState>>({});
-  const { user }: any = useAppSelector(getUsersData);
+  const { user }: any = useAppSelector(getCustomersData);
   const [isRoleSelected, setIsRoleSelected] = useState<boolean>(false);
   const [selectedRole, setSelectedRole] = useState<SelectedRoleType | null>(
     null

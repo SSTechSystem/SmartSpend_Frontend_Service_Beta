@@ -494,7 +494,7 @@ const index: React.FC = () => {
                                             import.meta.env
                                               .VITE_REACT_APP_ACCOUNT_IMAGE_URL
                                           }/${account.logo}`
-                                        : `/sskit/user.png`
+                                        : `/smartspend/user.png`
                                     }
                                     onClick={() => {
                                       if (account.logo) {

@@ -7,7 +7,7 @@ import { setLogout } from "../stores/auth";
 import { UNAUTH_CODE } from "../utils/constants";
 
 interface ApiOptions {
-  method: "get" | "post" | "put" | "delete";
+  method: "get" | "post" | "put" | "delete" | "patch";
   url: string;
   headers?: Record<string, string>;
   data?: any;
@@ -53,7 +53,7 @@ export const makeApiCall = createAsyncThunk(
       if (Number(error.response?.status) === Number(UNAUTH_CODE)) {
         localStorage.clear();
         localStorage.removeItem("token");
-        window.location.href = "/sskit/login";
+        window.location.href = "/smartspend/login";
         if (!isLoggingOut) {
           isLoggingOut = true;
           dispatch(setLogout());

@@ -2,76 +2,51 @@ import clsx from "clsx";
 import Statistics from "../../components/Dashboard/statistics";
 import { useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "../../stores/hooks";
-import { getUserData } from "../../stores/dashboard";
+import { getDashboardData,setDashboardData } from "../../stores/dashboard";
 import moment from "moment";
 import { removeItemFromLocalStorage } from "../../stores/sideMenuSlice";
+import { Car, CheckCircle, Eye, MessageSquare, Shield, UserCheck, Users } from "lucide-react";
 
 function Main() {
   const dispatch = useAppDispatch();
-  const userState: any = useAppSelector(getUserData);
+  const dashboardState: any = useAppSelector(getDashboardData);
   const [message, setMessage] = useState<string>("");
-  const statisticsData = [
+  type Card = {
+    icon: (props: any) => JSX.Element;
+    title: string;
+    number: number;
+  };
+  const statisticsCards = [
     {
-      title: "Site Statistics",
-      icon: "TrendingUp",
-      items: [
-        {
-          icon: "Users",
-          title: "Users",
-          number: 0,
-        },
-        {
-          icon: "Truck",
-          title: "Drivers or carriers",
-          number: 0,
-        },
-        {
-          icon: "UserCheck",
-          title: "Online drivers",
-          number: 0,
-        },
-        {
-          icon: "ShoppingBag",
-          title: "Retailer",
-          number: 0,
-        },
-      ],
+      icon: Shield,
+      title: "Registered Admins",
+      number: dashboardState?.dashboard?.totalRegisteredAdmins || 0,
     },
     {
-      title: "Job Statistics",
-      icon: "Sliders",
-      items: [
-        {
-          icon: "Codesandbox",
-          title: "Total jobs",
-          number: 0,
-        },
-        {
-          icon: "Briefcase",
-          title: "Running job",
-          number: 0,
-        },
-        {
-          icon: "CheckCircle",
-          title: "Completed jobs",
-          number: 0,
-        },
-        {
-          icon: "PlusSquare",
-          title: "Created jobs",
-          number: 0,
-        },
-      ],
+      icon: Users,
+      title: "Registered Users",
+      number: dashboardState?.dashboard?.totalRegisteredAppUsers || 0,
     },
-  ];
+    {
+      icon: Eye,
+      title: "Guest Users",
+      number: dashboardState?.dashboard?.totalGuestUsers || 0,
+    },
+    {
+      icon: MessageSquare,
+      title: "Viewed Feedback",
+      number: dashboardState?.dashboard?.totalViewedFeedbacks + '/' + dashboardState?.dashboard?.totalFeedbacks || 0,
+    },
+  ].filter(Boolean) as Card[];
 
   useEffect(() => {
     dispatch(removeItemFromLocalStorage());
+    dispatch(setDashboardData());
   }, []);
 
   useEffect(() => {
-    if (userState?.user?.last_login) {
-      const lastLoginText = moment(userState?.user?.last_login).format(
+    if (dashboardState?.dashboard?.lastLogin) {
+      const lastLoginText = moment(dashboardState?.dashboard?.lastLogin).format(
         "MM/DD/YYYY hh:mm a"
       );
       setMessage(`Last Login - ${lastLoginText}`);
@@ -82,32 +57,46 @@ function Main() {
 
       return () => clearTimeout(timer);
     }
-  }, [userState?.user?.last_login]);
+  }, [dashboardState?.dashboard?.lastLogin]);
 
   return (
-    <div className="w-full min-w-full px-4">
-      <div className="w-full mx-auto">
-        {userState?.user && (
-          <div className="w-full">
-            <div className="items-center block h-10 intro-y sm:flex sm:justify-between">
-              <h2 className="mr-5 text-base sm:text-lg font-medium truncate">
-                Dashboard
-              </h2>
-              <h2 className="text-xs sm:text-sm">{message}</h2>
-            </div>
+    <div className="p-3 box flex-1 mt-5">
+      <div className="px-1 pt-2 flex text-base font-medium items-center">
+        Dashboard
+      </div>
 
-            <div className="w-full space-y-6 mt-6">
-              {statisticsData?.map((item: any, i: number) => (
-                <Statistics
-                  key={i}
-                  title={item.title}
-                  items={item.items}
-                  icon={item.icon}
-                />
-              ))}
-            </div>
-          </div>
-        )}
+      <div className="flex gap-3 flex-wrap my-2 h-full overflow-y-auto">
+        {statisticsCards.map((card, i) => {
+          const IconComponent = card.icon;
+          return (
+            <section
+              key={i}
+              className={`flex justify-between items-center w-full 
+            ${
+              statisticsCards.length === 2
+                ? "sm:w-[calc(50%-8px)]"
+                : "sm:w-[calc(49%-8px)] md:w-[calc(25%-10px)]"
+            }
+            p-2 border border-dark/30 dark:border-white/20 rounded-[0.5rem]`}
+            >
+              <article className="flex flex-col gap-1">
+                <header>
+                    {(
+                      <p className="text-lg font-extrabold pl-2 text-success dark:text-green-500">
+                        {card.number}
+                      </p>
+                    )}
+                </header>
+                <footer className="pl-2 font-bold" style={{ fontSize: "16px" }}>
+                  {card.title}
+                </footer>
+              </article>
+              <article className="pr-3">
+                <IconComponent className="w-8 h-8 text-[#3e8db1] dark:text-[#8ecbe7]" />
+              </article>
+            </section>
+          );
+        })}
       </div>
     </div>
   );

@@ -4,7 +4,7 @@ import path from "path";
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  base: "/sskit/",
+  base: "/smartspend/",
   build: {
     commonjsOptions: {
       include: ["tailwind.config.js", "node_modules/**"],
