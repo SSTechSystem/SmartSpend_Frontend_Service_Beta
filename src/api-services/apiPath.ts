@@ -6,6 +6,7 @@ export const API_PATH = {
   SIGN_OUT: `${API_BASE_URL}/signout`,
   FORGET_PASSWORD: `${API_BASE_URL}/forgot-password`,
   RESET_PASSWORD: `${API_BASE_URL}/reset-password`,
+  CHANGE_PASSWORD: `${API_BASE_URL}/change-password`,
 
   //Dashboard 
   GET_DASHBOARD_DATA: `${API_BASE_URL}/dashboard`,
@@ -17,8 +18,27 @@ export const API_PATH = {
   //Customer
   GET_ALL_CUSTOMERS: `${API_BASE_URL}/customers`,
 
+  //Admin
+  GET_ALL_ADMIN: `${API_BASE_URL}/admins`,
+  GET_SINGLE_ADMIN: `${API_BASE_URL}/admin-details`,
+  DELETE_ADMIN: `${API_BASE_URL}/admin-delete`,
+  UPDATE_ADMIN: `${API_BASE_URL}/admin-add-or-edit`,
+
   //Roles
   GET_ALL_ROLES: `${API_BASE_URL}/roles`,
+
+  //Feedback
+  GET_ALL_FEEDBACKS: `${API_BASE_URL}/feedbacks`,
+
+  //Backup
+  GET_ALL_BACKUPS: `${API_BASE_URL}/backups`,
+
+  //CMS
+  GET_ALL_CMS: `${API_BASE_URL}/cms`,
+  GET_SINGLE_CMS: `${API_BASE_URL}/cms-details`,
+  DELETE_CMS: `${API_BASE_URL}/delete-cms`,
+  ADD_CMS: `${API_BASE_URL}/add-cms`,
+  VIEW_CMS: `${API_BASE_URL}/view-cms`,
 
   //Permissions
   PERMISSIONS_URL: `${API_BASE_URL}`,
@@ -32,13 +52,6 @@ export const API_PATH = {
   VERIFY_USER: `${API_BASE_URL}/email-verify`,
   CHANGE_USER_STATUS: `${API_BASE_URL}/change-status`,
   RESEND_VERIFICATION_EMAIL: `${API_BASE_URL}/resend-verification-email`,
-
-  //Modules
-  GET_MODULES_LIST: `${API_BASE_URL}/getall`,
-  GET_SINGLE_MODULE: `${API_BASE_URL}/get`,
-  ADD_MODULE: `${API_BASE_URL}/add`,
-  EDIT_MODULE: `${API_BASE_URL}/edit`,
-  DELETE_MODULE: `${API_BASE_URL}/delete`,
 
   //Logs
   GET_ALL_API_LOGS: `${API_BASE_URL}/getall-apilogs`,

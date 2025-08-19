@@ -10,10 +10,14 @@ import permissionReducer from "./managePermission";
 import companyReducer from "./company";
 import listReducer from "./commonList";
 import accountsReducer from "./accounts";
-import userReducer from "./customer";
+import customerReducer from "./customer";
 import logsReducer from "./logs";
 import moduleReducer from "./module";
 import profileReducer from "./profile";
+import feedbackReducer from "./feedback";
+import backupReducer from "./backup";
+import adminReducer from "./admin";
+import cmsReducer from "./cms";
 
 export const store = configureStore({
   reducer: {
@@ -27,11 +31,15 @@ export const store = configureStore({
     toast: toastReducer,
     company: companyReducer,
     account: accountsReducer,
-    user: userReducer,
+    user: customerReducer,
     list: listReducer,
     logs: logsReducer,
     module: moduleReducer,
-    profile: profileReducer
+    profile: profileReducer,
+    feedback: feedbackReducer,
+    backup: backupReducer,
+    admin: adminReducer,
+    cms: cmsReducer,
   },
 });
 

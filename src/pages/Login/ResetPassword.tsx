@@ -15,7 +15,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import clsx from "clsx";
 import { Preview } from "../../base-components/PreviewComponent";
 import LoadingIcon from "../../base-components/LoadingIcon";
-import logoUrl from "../../assets/images/driver007-dark.png";
+import logoUrl from "../../assets/images/SmratSpendSVG.png";
 import logoDarkUrl from "../../assets/images/driver007.png";
 import Lucide from "../../base-components/Lucide";
 import DarkModeSwitcher from "../../components/DarkModeSwitcher";

@@ -84,6 +84,20 @@ export const resetPassword = createAsyncThunk(
   }
 );
 
+export const changePassword = createAsyncThunk(
+  "auth/changePassword",
+  async (data: any, { dispatch }) => {
+    const response = await dispatch(
+      makeApiCall({
+        method: "patch",
+        url: `${API_PATH.CHANGE_PASSWORD}`,
+        data,
+      })
+    );
+    return response.payload;
+  }
+);
+
 // create store with auth namespace
 export const authStore = createSlice({
   name: "auth",

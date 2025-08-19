@@ -16,8 +16,8 @@ import {
 import { useAppDispatch, useAppSelector } from "../../stores/hooks";
 import { FormattedMenu, linkTo, nestedMenu, enter, leave } from "./side-menu";
 import Lucide from "../../base-components/Lucide";
-import logoUrl from "../../assets/images/driver007-dark.png";
-import driverLogo from "../../assets/images/driverLogo.png";
+import logoUrl from "../../assets/images/SmratSpendSVG.png";
+import driverLogo from "../../assets/images/logowithouttext.svg";
 import clsx from "clsx";
 import TopBar from "../../components/TopBar";
 import SimpleBar from "simplebar";

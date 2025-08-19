@@ -429,7 +429,7 @@ const index: React.FC = () => {
             <CustomLoader color="fill-orange-600" />
           ) : (
             <>
-              <div className="col-span-12 overflow-auto intro-y">
+              <div className="col-span-12 intro-y">
                 <Table className="border-separate -mt-2">
                   <Table.Thead>
                     <Table.Tr>

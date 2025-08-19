@@ -6,7 +6,6 @@ import { Suspense, lazy } from "react";
 import Loader from "../components/Loader";
 import { ToastContainer } from "react-toastify";
 import { selectDarkMode } from "../stores/darkModeSlice";
-import secureLocalStorage from "react-secure-storage";
 
 interface AuthType {
   token: string;
@@ -17,13 +16,17 @@ const RenderRoutes = () => {
 
   const DashboardOverview1 = lazy(() => import("../pages/DashboardOverview1"));
   const CustomerList = lazy(() => import("../pages/CustomerManagement"));
-  const ManageUser = lazy(() => import("../pages/CustomerManagement/ManageCustomer"));
+  const FeedbackList = lazy(() => import("../pages/Feedback"));
+  const BackupList = lazy(() => import("../pages/Backup"));
+  const ChangePassword = lazy(() => import("../pages/ChangePassword"));
+  const CmsManagement = lazy(() => import("../pages/CmsManagement"));
+  const AddCms = lazy(() => import("../pages/CmsManagement/AddDetails"));
+  const ViewCms = lazy(() => import("../pages/CmsManagement/ViewDescription"));
+  const AdminList = lazy(() => import("../pages/AdminManagement/index"));
+  const AdminManagement = lazy(() => import("../pages/AdminManagement/ManageAdmin"));
   const Profile = lazy(() => import("../pages/Profile"));
   const ApiLogsList = lazy(() => import("../pages/LogsManagement/ApiLogs"));
   const Login = lazy(() => import("../pages/Login"));
-  const UserVerifyPage = lazy(
-    () => import("../pages/CustomerManagement/UserVerify")
-  );
   const ForgetPassword = lazy(() => import("../pages/Login/ForgetPassword"));
   const ResetPassword = lazy(() => import("../pages/Login/ResetPassword"));
   const ErrorPage = lazy(() => import("../pages/ErrorPage"));
@@ -66,10 +69,58 @@ const RenderRoutes = () => {
           ),
         },
         {
-          path: "/user/manage-user",
+          path: "/feedbacks",
           element: (
             <Suspense fallback={<Loader icon="puff" />}>
-              <ManageUser />
+              <FeedbackList />
+            </Suspense>
+          ),
+        },
+        {
+          path: "/backups",
+          element: (
+            <Suspense fallback={<Loader icon="puff" />}>
+              <BackupList />
+            </Suspense>
+          ),
+        },
+        {
+          path: "/changepassword",
+          element: (
+            <Suspense fallback={<Loader icon="puff" />}>
+              <ChangePassword />
+            </Suspense>
+          ),
+        },
+        {
+          path: "/admins",
+          element: (
+            <Suspense fallback={<Loader icon="puff" />}>
+              <AdminList />
+            </Suspense>
+          ),
+        },
+        {
+          path: "/manage-admin/:id?",
+          element: (
+            <Suspense fallback={<Loader icon="puff" />}>
+              <AdminManagement />
+            </Suspense>
+          ),
+        },
+        {
+          path: "/cms",
+          element: (
+            <Suspense fallback={<Loader icon="puff" />}>
+              <CmsManagement />
+            </Suspense>
+          ),
+        },
+        {
+          path: "/cms/viewDescription",
+          element: (
+            <Suspense fallback={<Loader icon="puff" />}>
+              <ViewCms />
             </Suspense>
           ),
         },
@@ -89,16 +140,6 @@ const RenderRoutes = () => {
       element: !auth.token ? (
         <Suspense fallback={<Loader icon="puff" />}>
           <Login />
-        </Suspense>
-      ) : (
-        <Navigate to="/" />
-      ),
-    },
-    {
-      path: "/user-verify",
-      element: !auth.token ? (
-        <Suspense fallback={<Loader icon="puff" />}>
-          <UserVerifyPage />
         </Suspense>
       ) : (
         <Navigate to="/" />
