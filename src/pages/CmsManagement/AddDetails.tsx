@@ -58,6 +58,11 @@ type DynamicFieldsState = {
   is_deleted?: number;
 };
 
+type ErrorState = {
+  name: string;
+  title: string;
+};
+
 const AddDetails: React.FC = () => {
   const [initFormData, setInitFormData] = useState<FormState>({
     ...initialState,
@@ -75,6 +80,10 @@ const AddDetails: React.FC = () => {
       },
     ]
   );
+  const [formErrors, setFormErrors] = useState<ErrorState>({
+    name: "",
+    title: "",
+  });
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false);
@@ -177,7 +186,6 @@ const AddDetails: React.FC = () => {
 
   const handleUpdateCms = async (cmsId: string, updatedData: any) => {
     try {
-      console.log('dynamicFields: ', dynamicFields);
       const formattedData = {
         id: Number(cmsId),
         name: updatedData.name,
@@ -195,9 +203,8 @@ const AddDetails: React.FC = () => {
         })),
       };
 
-      console.log('formattedData: ', formattedData);
       const res: any = await dispatch(updateCmsEntry(formattedData)).unwrap();
-      if(res?.status === SUCCESS_CODE) {
+      if (res?.status === SUCCESS_CODE) {
         toast.success(res?.data?.message || "Cms has been updated successfully!");
         navigate("/cms");
       } else {
@@ -213,11 +220,24 @@ const AddDetails: React.FC = () => {
     event.preventDefault();
     setIsLoading(true);
     try {
-      if (!initFormData.name.trim()) {
-        toast.error("Name field is required.");
-        setIsLoading(false);
-        return;
-      }
+      const errors: {
+      name: string;
+      title: string;
+    } = { name: "", title: "" };
+
+      if (initFormData.name === "") {
+      errors.name = "Name is required";
+    }
+    if (initFormData.title === "") {
+      errors.title = "Page title is required";
+    }
+    setFormErrors(errors as ErrorState);
+    if (
+      errors.name ||
+      errors.title
+    )
+      return;
+
       if (cmsId) {
         await handleUpdateCms(cmsId, initFormData);
       } else {
@@ -290,6 +310,20 @@ const AddDetails: React.FC = () => {
     e: ChangeEvent<T>,
     field: string
   ) => {
+    if (field === "name") {
+      setFormErrors((prev) => ({
+        ...prev,
+        name: value ? "" : "Name is required",
+      }));
+    }
+
+    if (field === "title") {
+      setFormErrors((prev) => ({
+        ...prev,
+        title: value ? "" : "Page title is required",
+      }));
+    }
+
     const value =
       e.target.type === "checkbox"
         ? (e.target as HTMLInputElement).checked
@@ -325,7 +359,7 @@ const AddDetails: React.FC = () => {
               encType="multipart/form-data"
             >
               <div className="col-span-12 intro-y sm:col-span-6">
-                <FormLabel htmlFor="name">Name</FormLabel>
+                <FormLabel htmlFor="name">Name<span className="text-red-600 font-bold ms-1">*</span></FormLabel>
                 <FormInput
                   id="name"
                   type="text"
@@ -335,9 +369,14 @@ const AddDetails: React.FC = () => {
                   }
                   value={initFormData.name}
                 />
+                {formErrors.name && (
+                    <p className="mt-1 text-xs text-red-500">
+                      {formErrors.name}
+                    </p>
+                  )}
               </div>
               <div className="col-span-12 intro-y sm:col-span-6">
-                <FormLabel htmlFor="title">Page Title</FormLabel>
+                <FormLabel htmlFor="title">Page Title<span className="text-red-600 font-bold ms-1">*</span></FormLabel>
                 <FormInput
                   id="title"
                   type="text"
@@ -347,6 +386,11 @@ const AddDetails: React.FC = () => {
                   }
                   value={initFormData.title}
                 />
+                {formErrors.title && (
+                    <p className="mt-1 text-xs text-red-500">
+                      {formErrors.title}
+                    </p>
+                  )}
               </div>
 
               {!cmsId && (

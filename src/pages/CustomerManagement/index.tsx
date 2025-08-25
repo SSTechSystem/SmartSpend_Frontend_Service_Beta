@@ -168,8 +168,8 @@ const index: React.FC = () => {
           ...(filterRole && {
             user_role: Number(filterRole),
           }),
-          ...(startDate !== null && {
-            start_date: dayjs(startDate).format("YYYY-MM-DD"),
+          ...(datePrior3Month !== null && {
+            start_date: dayjs(datePrior3Month).format("YYYY-MM-DD"),
           }),
           ...(endDate !== null && {
             end_date: dayjs(endDate).format("YYYY-MM-DD"),

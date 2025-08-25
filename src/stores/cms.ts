@@ -101,7 +101,7 @@ const initialState: CmsState = {
 export const fetchAllCmsData = createAsyncThunk(
   "cms/fetchAllCmsData",
   async (data: any, { dispatch }) => {
-    const bodyData: any = {
+    const queryParams: any = {
       limit: data.limit,
       page: data.page,
       search: data.search || "",
@@ -111,7 +111,7 @@ export const fetchAllCmsData = createAsyncThunk(
       makeApiCall({
         method: "get",
         url: `${API_PATH.GET_ALL_CMS}`,
-        data: bodyData,
+        params: queryParams,
       })
     );
 
@@ -139,7 +139,7 @@ export const addCmsEntry = createAsyncThunk(
       title: data.title,
       description: data.description,
       meta_tags: data.meta_tags,
-      meta_description: data.meta_desctiption,
+      meta_description: data.meta_description,
       version_history,
     };
 

@@ -250,7 +250,7 @@ const ManageAdmin: React.FC = () => {
       <div className="py-5 mt-5 intro-y box">
         <div className="px-5 sm:px-20">
           <BackButton
-            to="/dashboard"
+            to="/admins"
             variant="linkedin"
             title={`${id ? "Update" : "Add"} Admin`}
           />
