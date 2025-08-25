@@ -18,7 +18,7 @@ const App = () => {
 
   return (
     <ThemeProvider theme={theme}>
-      <BrowserRouter basename="/smartspend/">
+      <BrowserRouter basename="/smart-spend/admin/">
         <Router />
         <ScrollToTop />
       </BrowserRouter>

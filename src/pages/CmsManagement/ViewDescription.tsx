@@ -2,19 +2,10 @@ import { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate, useLocation } from "react-router-dom";
 import Table from "../../base-components/Table";
-import Lucide from "../../base-components/Lucide";
 import { fetchCmsDescription } from "../../stores/cms";
 import { RootState, AppDispatch } from "../../stores/store";
 import PageHeader from './../../components/PageHeader/index';
 import CustomLoader from "../../components/Loader/CustomLoader";
-
-interface CmsDetails {
-  Name: string;
-  VersionNumber: any;
-  Description: string;
-  Platform: string;
-  IsForceUpdate: boolean;
-}
 
 const ViewDescription = () => {
   const dispatch = useDispatch<AppDispatch>();

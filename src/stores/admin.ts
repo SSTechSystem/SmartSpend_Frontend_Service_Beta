@@ -90,7 +90,6 @@ export const deleteAdmin = createAsyncThunk(
 export const updateAdmin = createAsyncThunk(
   "admin/updateAdmin",
   async (data: any, { dispatch }) => {
-    console.log('data: ', data);
     const response = await dispatch(
       makeApiCall({
         method: "patch",

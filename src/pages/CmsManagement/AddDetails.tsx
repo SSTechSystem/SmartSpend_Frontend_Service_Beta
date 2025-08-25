@@ -1,27 +1,29 @@
 import React, { ChangeEvent, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "../../stores/store";
-import { FormInput, FormLabel, FormCheck } from "../../base-components/Form";
+import { FormInput, FormLabel, FormCheck, FormTextarea } from "../../base-components/Form";
 import Button from "../../base-components/Button";
-import PageHeader from "../PageHeader";
 import { ClassicEditor } from "../../base-components/Ckeditor";
-import LoadingIcon from "../../base-components/LoadingIcon";
 import {
   addCmsEntry,
   fetchCmsById,
-  updateCmsEntry,
   deleteVersionHistory,
-} from "../../stores/Support";
+  updateCmsEntry,
+} from "../../stores/cms";
 import { displayToast } from "../../stores/toastSlice";
 import { useNavigate, useLocation } from "react-router-dom";
 import { toast } from "react-toastify";
 import Dialog from "@mui/material/Dialog";
 import DialogContent from "@mui/material/DialogContent";
+import PageHeader from './../../components/PageHeader/index';
+import { SUCCESS_CODE } from "../../utils/constants";
 
 type InitialState = {
   name: string;
   title: string;
   description: string;
+  meta_tags: string;
+  meta_description: string;
   isRelease: boolean;
 };
 
@@ -29,6 +31,8 @@ const initialState: InitialState = {
   name: "",
   title: "",
   description: "",
+  meta_tags: "",
+  meta_description: "",
   isRelease: false,
 };
 
@@ -36,6 +40,8 @@ type TextInputState = {
   name: string;
   title: string;
   description: string;
+  meta_tags: string;
+  meta_description: string;
   isRelease: boolean;
 };
 
@@ -46,7 +52,7 @@ type DynamicFieldsState = {
   description: string;
   versionNumber: string;
   platform: string;
-  forceupdate: number;
+  forceupdate: string;
   is_created?: number;
   is_updated?: number;
   is_deleted?: number;
@@ -64,7 +70,7 @@ const AddDetails: React.FC = () => {
         description: "",
         versionNumber: "",
         platform: "",
-        forceupdate: 0,
+        forceupdate: 'false',
         is_created: 1,
       },
     ]
@@ -112,7 +118,7 @@ const AddDetails: React.FC = () => {
         description: "",
         versionNumber: "",
         platform: "",
-        forceupdate: 0,
+        forceupdate: 'false',
         is_created: 1,
       },
     ]);
@@ -171,36 +177,34 @@ const AddDetails: React.FC = () => {
 
   const handleUpdateCms = async (cmsId: string, updatedData: any) => {
     try {
+      console.log('dynamicFields: ', dynamicFields);
       const formattedData = {
         id: Number(cmsId),
         name: updatedData.name,
         title: updatedData.title,
         description: updatedData.description,
         is_release: initFormData.isRelease,
+        meta_tags: updatedData.meta_tags,
+        meta_description: updatedData.meta_description,
         version_history: dynamicFields.map((field) => ({
           id: typeof field.id === "string" ? Number(field.id) : field.id,
           version_no: field.versionNumber,
           type: field.platform,
           version_description: field.description,
-          is_force_update: field.forceupdate ? 1 : 0,
-          is_created: field?.is_created ?? 0,
-          is_updated: field?.is_updated ?? 0,
-          is_deleted:
-            field?.is_deleted === 1
-              ? 1
-              : !field?.versionNumber
-              ? 0
-              : field?.is_updated
-              ? 1
-              : 0,
+          is_force_update: field.forceupdate === 'true' ? 1 : 0
         })),
       };
 
-      const res = await dispatch(updateCmsEntry(formattedData)).unwrap();
-      toast.success(res.message || "CMS Entry updated successfully!");
-      navigate("/cms");
+      console.log('formattedData: ', formattedData);
+      const res: any = await dispatch(updateCmsEntry(formattedData)).unwrap();
+      if(res?.status === SUCCESS_CODE) {
+        toast.success(res?.data?.message || "Cms has been updated successfully!");
+        navigate("/cms");
+      } else {
+        toast.error(res?.response?.data?.message || "Failed to update cms.");
+      }
     } catch (error: any) {
-      toast.error(error.message || "Failed to update CMS Entry.");
+      toast.error(error.message || "Failed to update cms.");
       console.error(error);
     }
   };
@@ -214,42 +218,24 @@ const AddDetails: React.FC = () => {
         setIsLoading(false);
         return;
       }
-
-      const formattedData = {
-        name: initFormData.name,
-        title: initFormData.title,
-        description: initFormData.description,
-        version_history: dynamicFields.map((field) => ({
-          id: typeof field.id === "string" ? Number(field.id) : field.id,
-          version_no: field.versionNumber,
-          type: field.platform,
-          version_description: field.description,
-          is_force_update: field.forceupdate ? 1 : 0,
-          is_created: field?.is_created ?? 0,
-          is_updated: field?.is_updated ?? 0,
-          is_deleted: field?.is_deleted ?? 0,
-        })),
-      };
       if (cmsId) {
         await handleUpdateCms(cmsId, initFormData);
       } else {
         const response = await dispatch(
           addCmsEntry({ ...initFormData, versionHistory: dynamicFields })
         ).unwrap();
-        dispatch(
-          displayToast({
-            msg: response.message || "CMS Entry added successfully!",
-            type: "Success",
-          })
-        );
+        if (response?.status === SUCCESS_CODE) {
+          toast.success(response?.data?.message || "Cms has been added successfully");
+          navigate("/cms");
+          setInitFormData({ ...initialState });
+        } else {
+          toast.error(response?.response?.data?.message || "Failed to add cms.");
+        }
       }
-
-      setInitFormData({ ...initialState });
-      navigate("/cms");
     } catch (error: any) {
       dispatch(
         displayToast({
-          msg: error?.message || "Failed to save CMS Entry.",
+          msg: error?.message || "Failed to save cms.",
           type: "Error",
         })
       );
@@ -263,27 +249,28 @@ const AddDetails: React.FC = () => {
       if (cmsId) {
         try {
           const response = await dispatch(fetchCmsById(cmsId)).unwrap();
-          console.log("response", response);
           setInitFormData({
-            name: response.Name,
-            title: response.Title,
-            description: response.Description,
-            isRelease: response?.Version_History.length !== 0 ? true : false,
+            name: response?.data?.data?.name,
+            title: response?.data?.data?.page_title,
+            description: response?.data?.data?.page_description ?? "",
+            isRelease: response?.data?.data?.version_history?.length !== 0 ? true : false,
+            meta_tags: response?.data?.data?.meta_tags || "",
+            meta_description: response?.data?.data?.meta_description || "",
           });
-          if (response?.Version_History.length !== 0) {
+          if (response?.data?.data?.version_history?.length !== 0) {
             setDynamicFields(
-              response.Version_History.map((version: any) => ({
+              response.data.data.version_history.map((version: any) => ({
                 id: version.id,
-                description: version.version_description,
-                versionNumber: version.version_no,
-                platform: version.type,
-                forceupdate: version.is_force_update ? 1 : 0,
+                description: version.description,
+                versionNumber: version.title,
+                platform: version.platform === 1 ? "Android" : "iOS",
+                forceupdate: version.is_force === 'true' ? true : false,
               }))
             );
           }
         } catch (error) {
           dispatch(
-            displayToast({ msg: "Failed to load CMS details", type: "Error" })
+            displayToast({ msg: "Failed to load cms details", type: "Error" })
           );
         }
       }
@@ -299,7 +286,7 @@ const AddDetails: React.FC = () => {
     }));
   };
 
-  const handleInputChange = <T extends HTMLInputElement | HTMLSelectElement>(
+  const handleInputChange = <T extends HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>(
     e: ChangeEvent<T>,
     field: string
   ) => {
@@ -444,8 +431,8 @@ const AddDetails: React.FC = () => {
                               className="w-full px-4 py-2 text-sm border border-gray-300 rounded-lg shadow-sm hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow duration-200"
                             >
                               <option value="">Select Force Update</option>
-                              <option value="1">True</option>
-                              <option value="0">False</option>
+                              <option value='true'>True</option>
+                              <option value="false">False</option>
                             </select>
                           </div>
                           <div className="col-span-12">
@@ -529,6 +516,28 @@ const AddDetails: React.FC = () => {
                   </div>
                 </div>
               )}
+
+              <div className="col-span-6 intro-y sm:col-span-6">
+                <FormLabel htmlFor="meta_tags">Meta Tags</FormLabel>
+                <FormTextarea
+                  id="meta_tags"
+                  value={initFormData.meta_tags}
+                  onInput={(e: ChangeEvent<HTMLTextAreaElement>) =>
+                    handleInputChange(e, "meta_tags")
+                  }
+                />
+              </div>
+
+              <div className="col-span-6 intro-y sm:col-span-6">
+                <FormLabel htmlFor="meta_description">Meta Description</FormLabel>
+                <FormTextarea
+                  id="meta_description"
+                  value={initFormData.meta_description}
+                  onInput={(e: ChangeEvent<HTMLTextAreaElement>) =>
+                    handleInputChange(e, "meta_description")
+                  }
+                />
+              </div>
 
               <div className="flex items-center col-span-12 mt-5 intro-y">
                 <Button variant="primary" type="submit" onClick={handleSubmit}>

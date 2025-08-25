@@ -17,7 +17,6 @@ import { capitalizeByCharacter } from "../../utils/helper";
 import CancelSearchText from "../../components/HelperButton/CancelSearchText";
 import { fetchAllRoles, getRolesData } from "../../stores/manageRole";
 import ResetOrSearchButton from "../../components/HelperButton";
-import clsx from "clsx";
 import CustomPagination from "../../components/Pagination/CustomPagination";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
@@ -163,6 +162,18 @@ const index: React.FC = () => {
         fetchAllCustomersData({
           limit: PAGE_LIMIT,
           page: 1,
+          ...(filterUser !== "All" && {
+            device_type: filterUser,
+          }),
+          ...(filterRole && {
+            user_role: Number(filterRole),
+          }),
+          ...(startDate !== null && {
+            start_date: dayjs(startDate).format("YYYY-MM-DD"),
+          }),
+          ...(endDate !== null && {
+            end_date: dayjs(endDate).format("YYYY-MM-DD"),
+          }),
         })
       );
     } catch (error) {
@@ -230,14 +241,14 @@ const index: React.FC = () => {
     setCurrentPage(1);
   };
 
-  const filterByJobStartDate = (selectedDate: Dayjs | string | null) => {
+  const filterByStartDate = (selectedDate: Dayjs | string | null) => {
     setStartDate(selectedDate);
     if (selectedDate !== null && dayjs(endDate).isBefore(selectedDate)) {
       setEndDate(selectedDate);
     }
   };
 
-  const filterByJobEndDate = (selectedDate: Dayjs | string | null) => {
+  const filterByEndDate = (selectedDate: Dayjs | string | null) => {
     setEndDate(selectedDate);
     if (selectedDate !== null && dayjs(startDate).isAfter(selectedDate)) {
       setStartDate(selectedDate);
@@ -386,7 +397,7 @@ const index: React.FC = () => {
                   actionBar: { actions: ["clear", "today"] },
                 }}
                 sx={{ width: "100%" }}
-                onChange={(val) => filterByJobStartDate(val)}
+                onChange={(val) => filterByStartDate(val)}
               />
             </LocalizationProvider>
           </div>
@@ -403,7 +414,7 @@ const index: React.FC = () => {
                   actionBar: { actions: ["clear", "today"] },
                 }}
                 sx={{ width: "100%" }}
-                onChange={(val) => filterByJobEndDate(val)}
+                onChange={(val) => filterByEndDate(val)}
               />
             </LocalizationProvider>
           </div>
@@ -469,10 +480,13 @@ const index: React.FC = () => {
                     </Table.Tr>
                   </Table.Thead>
                   <Table.Tbody>
-                    {displayedUser.map((user: any) => (
+                    {displayedUser.map((user: any, idx: number) => {
+                      const rowIndex =
+                        (currentPage - 1) * itemsPerPage + idx + 1;
+                    return (
                       <Table.Tr key={user.id} className="intro-x">
                         <Table.Td className="first:rounded-l-md last:rounded-r-md bg-white border border-r-0 border-l-0 first:border-l last:border-r border-slate-200 dark:bg-darkmode-600 dark:border-darkmode-600 shadow-[20px_3px_20px_#0000000b] py-4">
-                          <span>{user.id}</span>
+                          <span>{rowIndex}</span>
                         </Table.Td>
                         <Table.Td className="first:rounded-l-md last:rounded-r-md bg-white border border-r-0 border-l-0 first:border-l last:border-r border-slate-200 dark:bg-darkmode-600 dark:border-darkmode-600 shadow-[20px_3px_20px_#0000000b] py-4 capitalize">
                           {user.name ? user.name : "-"}
@@ -539,7 +553,8 @@ const index: React.FC = () => {
                           </div>
                         </Table.Td>
                       </Table.Tr>
-                    ))}
+                    )}
+                    )}
                   </Table.Tbody>
                 </Table>
               </div>

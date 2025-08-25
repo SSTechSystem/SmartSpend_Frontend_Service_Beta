@@ -46,12 +46,6 @@ const initialState: SideMenuState = {
       custom_key: "feedbacks",
     },
     {
-      icon: "DatabaseBackup",
-      title: "Backups",
-      pathname: "/backups",
-      custom_key: "backups",
-    },
-    {
       icon: "RotateCcwKey",
       title: "Change Password",
       pathname: "/changepassword",

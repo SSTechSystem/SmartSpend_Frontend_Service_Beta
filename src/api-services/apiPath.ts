@@ -38,7 +38,9 @@ export const API_PATH = {
   GET_SINGLE_CMS: `${API_BASE_URL}/cms-details`,
   DELETE_CMS: `${API_BASE_URL}/delete-cms`,
   ADD_CMS: `${API_BASE_URL}/add-cms`,
+  UPDATE_CMS: `${API_BASE_URL}/edit-cms`,
   VIEW_CMS: `${API_BASE_URL}/view-cms`,
+  DELETE_VERSION_HISTORY: `${API_BASE_URL}/delete-version-history`,
 
   //Permissions
   PERMISSIONS_URL: `${API_BASE_URL}`,

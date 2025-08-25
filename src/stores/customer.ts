@@ -25,6 +25,8 @@ type QueryParams = {
   enable?: string;
   user_role?: number;
   device_type?: number;
+  start_date?: string;
+  end_date?: string;
 };
 
 // define state value
@@ -50,6 +52,8 @@ export const fetchAllCustomersData = createAsyncThunk(
       search: data.searchText,
       user_role: data.user_role,
       device_type: data.device_type,
+      start_date: data.start_date,
+      end_date: data.end_date,
     };
 
     if (data.enable !== "all") {

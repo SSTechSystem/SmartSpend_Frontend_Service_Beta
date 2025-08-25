@@ -8,7 +8,7 @@ import { getProfileData, setProfileData } from "../../stores/profile";
 import LoadingIcon from "../../base-components/LoadingIcon";
 import { toast } from "react-toastify";
 import { updateProfile } from "../../stores/profile";
-import { USERNAME_REGEX } from "../../utils/constants";
+import { SUCCESS_CODE, USERNAME_REGEX } from "../../utils/constants";
 import secureLocalStorage from "react-secure-storage";
 import LoaderIcon from "../Loader/LoaderIcon";
 
@@ -80,12 +80,18 @@ const ProfileForm: React.FC = () => {
     if (fieldName === "name") {
       setFormErrors((prev) => ({
         ...prev,
-        name: value ? "" : "Name is required",
+        name: value.trim() ? "" : "Name is required",
       }));
       if (!USERNAME_REGEX.test(value)) {
         setFormErrors((prev) => ({
           ...prev,
           name: "Invalid Name",
+        }));
+      }
+      if(value.length > 35) {
+        setFormErrors((prev) => ({
+          ...prev,
+          name: "Name must be less than 35 characters",
         }));
       }
     }
@@ -94,6 +100,12 @@ const ProfileForm: React.FC = () => {
         ...prev,
         phone: value ? "" : "Phone number is required",
       }));
+      if(value.length > 12 || value.length < 10) {
+        setFormErrors((prev) => ({
+          ...prev,
+          phone: "Phone number must be between 10 to 12 digits",
+        }));
+      }
     }
     setInitFormData((prevState) => ({
       ...prevState,
@@ -120,11 +132,13 @@ const ProfileForm: React.FC = () => {
         email: initFormData.email
       };
       const res = await dispatch(updateProfile(payload));
-      if (res.payload.data === undefined)
-        return toast.error("Something went wrong");
-      secureLocalStorage.setItem("username",payload.name);
-      toast.success(res.payload.data?.message || "User updated successfully");
-      navigate("/dashboard");
+      if (res?.payload?.status === SUCCESS_CODE) {
+        secureLocalStorage.setItem("username",payload.name);
+        navigate("/dashboard");
+        toast.success(res.payload.data?.message || "Your profile has been updated successfully.");
+      } else {
+        return toast.error(res?.payload?.response?.data?.message);
+      }
     } catch (error) {
       console.log("Err--", error);
     } finally {
@@ -169,7 +183,7 @@ const ProfileForm: React.FC = () => {
               id="input-wizard-2"
               name="email"
               value={initFormData.email}
-              disabled
+              readOnly
             />
           </div>
           <div className="col-span-12 intro-y sm:col-span-6">

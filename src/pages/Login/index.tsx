@@ -71,13 +71,11 @@ function Main() {
         setIsLoading(true);
         // Login api calling
         const dataRes: any = await dispatch(setAuthentication(formData));
-        if (dataRes.payload === undefined) {
-          return toast.error(toastMsg || "Incorrect email or password");
+        if (dataRes.payload?.status === 200) {
+          toast.success(toastMsg || "User loggedin successful");
+          navigate("/");
         } else {
-          if (dataRes.payload.status === 200) {
-            toast.success(toastMsg || "User loggedin successful");
-            navigate("/");
-          }
+          toast.error(toastMsg || "Incorrect email or password");
         }
       }
     } catch (error) {
@@ -181,10 +179,10 @@ function Main() {
                     )}
                   </div>
                 </div>
-                <div className="flex mt-4 text-xs justify-end text-slate-500 sm:text-sm">
+                {/* <div className="flex mt-4 text-xs justify-end text-slate-500 sm:text-sm">
                   <Link to={`/forget-password`}>Forgot Password?</Link>
-                </div>
-                <div className="mt-5 text-center xl:text-left">
+                </div> */}
+                <div className="mt-8 text-center xl:text-left">
                   <Button
                     variant="primary"
                     type="submit"

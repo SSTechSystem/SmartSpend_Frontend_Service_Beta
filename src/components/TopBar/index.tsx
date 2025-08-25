@@ -28,7 +28,7 @@ function Main(props: {
   const [message, setMessage] = useState("");
   const breadcrumbs = BreadCrumbCompo();
   const navigate = useNavigate();
-  const userName = secureLocalStorage.getItem("username") ?? null as any;
+  const userName = secureLocalStorage.getItem("username") ?? 'Admin' as any;
   const dashboardState = useAppSelector(getDashboardData);
   const dispatch = useAppDispatch();
   const darkMode = useAppSelector(selectDarkMode);

@@ -19,11 +19,11 @@ const RenderRoutes = () => {
   const FeedbackList = lazy(() => import("../pages/Feedback"));
   const BackupList = lazy(() => import("../pages/Backup"));
   const ChangePassword = lazy(() => import("../pages/ChangePassword"));
-  const CmsManagement = lazy(() => import("../pages/CmsManagement"));
-  const AddCms = lazy(() => import("../pages/CmsManagement/AddDetails"));
+  const CmsList = lazy(() => import("../pages/CmsManagement"));
+  const CmsManagement = lazy(() => import("../pages/CmsManagement/AddDetails"));
   const ViewCms = lazy(() => import("../pages/CmsManagement/ViewDescription"));
   const AdminList = lazy(() => import("../pages/AdminManagement/index"));
-  const AdminManagement = lazy(() => import("../pages/AdminManagement/ManageAdmin"));
+const AdminManagement = lazy(() => import("../pages/AdminManagement/ManageAdmin"));
   const Profile = lazy(() => import("../pages/Profile"));
   const ApiLogsList = lazy(() => import("../pages/LogsManagement/ApiLogs"));
   const Login = lazy(() => import("../pages/Login"));
@@ -77,14 +77,6 @@ const RenderRoutes = () => {
           ),
         },
         {
-          path: "/backups",
-          element: (
-            <Suspense fallback={<Loader icon="puff" />}>
-              <BackupList />
-            </Suspense>
-          ),
-        },
-        {
           path: "/changepassword",
           element: (
             <Suspense fallback={<Loader icon="puff" />}>
@@ -112,12 +104,20 @@ const RenderRoutes = () => {
           path: "/cms",
           element: (
             <Suspense fallback={<Loader icon="puff" />}>
+              <CmsList />
+            </Suspense>
+          ),
+        },
+        {
+          path: "/cms/manage",
+          element: (
+            <Suspense fallback={<Loader icon="puff" />}>
               <CmsManagement />
             </Suspense>
           ),
         },
         {
-          path: "/cms/viewDescription",
+          path: "/cms/viewdescription",
           element: (
             <Suspense fallback={<Loader icon="puff" />}>
               <ViewCms />

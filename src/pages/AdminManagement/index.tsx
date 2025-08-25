@@ -222,7 +222,7 @@ const index: React.FC = () => {
               onClick={() => navigate("/manage-admin")}
               className="w-max"
             >
-              <Lucide icon="Plus" className="w-4 h-4 mr-2 border-white" />
+              <Lucide icon="PlusCircle" className="w-4 h-4 mr-2" />
               Add Admin Details
             </Button>
           </div>
@@ -274,77 +274,81 @@ const index: React.FC = () => {
                     </Table.Tr>
                   </Table.Thead>
                   <Table.Tbody>
-                    {displayedUser.map((admin: any) => (
-                      <Table.Tr key={admin.id} className="intro-x">
-                        <Table.Td className="first:rounded-l-md last:rounded-r-md bg-white border border-r-0 border-l-0 first:border-l last:border-r border-slate-200 dark:bg-darkmode-600 dark:border-darkmode-600 shadow-[20px_3px_20px_#0000000b] py-4">
-                          <span>{admin.id}</span>
-                        </Table.Td>
-                        <Table.Td className="first:rounded-l-md last:rounded-r-md bg-white border border-r-0 border-l-0 first:border-l last:border-r border-slate-200 dark:bg-darkmode-600 dark:border-darkmode-600 shadow-[20px_3px_20px_#0000000b] py-4 capitalize">
-                          {admin.name ? admin.name : "-"}
-                        </Table.Td>
-                        <Table.Td className="first:rounded-l-md last:rounded-r-md bg-white border border-r-0 border-l-0 first:border-l last:border-r border-slate-200 dark:bg-darkmode-600 dark:border-darkmode-600 shadow-[20px_3px_20px_#0000000b] py-4">
-                          <div className="w-[150px] break-words">
-                            {admin.email ? admin.email : "-"}
-                          </div>
-                        </Table.Td>
-                        <Table.Td className="first:rounded-l-md last:rounded-r-md bg-white border border-r-0 border-l-0 first:border-l last:border-r border-slate-200 dark:bg-darkmode-600 dark:border-darkmode-600 shadow-[20px_3px_20px_#0000000b] py-4 capitalize">
-                          {admin.phone ? admin.phone : "-"}
-                        </Table.Td>
-                        <Table.Td className="first:rounded-l-md last:rounded-r-md bg-white border border-r-0 border-l-0 first:border-l last:border-r border-slate-200 dark:bg-darkmode-600 dark:border-darkmode-600 shadow-[20px_3px_20px_#0000000b] py-0 relative before:block before:w-px before:h-8 before:bg-slate-200 before:absolute before:left-0 before:inset-y-0 before:my-auto before:dark:bg-darkmode-400">
-                          <div className="flex items-center">
-                            {admin.last_login
-                              ? moment(admin.last_login).format(
-                                  "DD-MM-YYYY hh:mm:ss"
-                                )
-                              : "-"}
-                          </div>
-                        </Table.Td>
-                        <Table.Td className="first:rounded-l-md last:rounded-r-md bg-white border border-r-0 border-l-0 first:border-l last:border-r border-slate-200 dark:bg-darkmode-600 dark:border-darkmode-600 shadow-[20px_3px_20px_#0000000b] py-0 relative before:block before:w-px before:h-8 before:bg-slate-200 before:absolute before:left-0 before:inset-y-0 before:my-auto before:dark:bg-darkmode-400">
-                          <div className="flex items-center">
-                            {admin.created_at
-                              ? moment(admin.created_at).format(
-                                  "DD-MM-YYYY hh:mm:ss"
-                                )
-                              : "-"}
-                          </div>
-                        </Table.Td>
-                        <Table.Td className="first:rounded-l-md last:rounded-r-md bg-white border border-r-0 border-l-0 first:border-l last:border-r border-slate-200 dark:bg-darkmode-600 dark:border-darkmode-600 shadow-[20px_3px_20px_#0000000b] py-0 relative before:block before:w-px before:h-8 before:bg-slate-200 before:absolute before:left-0 before:inset-y-0 before:my-auto before:dark:bg-darkmode-400">
-                          <div className="flex items-center">
-                            {admin.enable === 1 ? (
-                              <span className="bg-green-100 text-green-700 px-2 py-1 rounded font-semibold text-xs">
-                                Enabled
+                    {displayedUser.map((admin: any, idx: number) => {
+                      const rowIndex =
+                        (currentPage - 1) * itemsPerPage + idx + 1;
+                      return (
+                        <Table.Tr key={admin.id} className="intro-x">
+                          <Table.Td className="first:rounded-l-md last:rounded-r-md bg-white border border-r-0 border-l-0 first:border-l last:border-r border-slate-200 dark:bg-darkmode-600 dark:border-darkmode-600 shadow-[20px_3px_20px_#0000000b] py-4">
+                            <span>{rowIndex}</span>
+                          </Table.Td>
+                          <Table.Td className="first:rounded-l-md last:rounded-r-md bg-white border border-r-0 border-l-0 first:border-l last:border-r border-slate-200 dark:bg-darkmode-600 dark:border-darkmode-600 shadow-[20px_3px_20px_#0000000b] py-4 capitalize">
+                            {admin.name ? admin.name : "-"}
+                          </Table.Td>
+                          <Table.Td className="first:rounded-l-md last:rounded-r-md bg-white border border-r-0 border-l-0 first:border-l last:border-r border-slate-200 dark:bg-darkmode-600 dark:border-darkmode-600 shadow-[20px_3px_20px_#0000000b] py-4">
+                            <div className="w-[150px] break-words">
+                              {admin.email ? admin.email : "-"}
+                            </div>
+                          </Table.Td>
+                          <Table.Td className="first:rounded-l-md last:rounded-r-md bg-white border border-r-0 border-l-0 first:border-l last:border-r border-slate-200 dark:bg-darkmode-600 dark:border-darkmode-600 shadow-[20px_3px_20px_#0000000b] py-4 capitalize">
+                            {admin.phone ? admin.phone : "-"}
+                          </Table.Td>
+                          <Table.Td className="first:rounded-l-md last:rounded-r-md bg-white border border-r-0 border-l-0 first:border-l last:border-r border-slate-200 dark:bg-darkmode-600 dark:border-darkmode-600 shadow-[20px_3px_20px_#0000000b] py-0 relative before:block before:w-px before:h-8 before:bg-slate-200 before:absolute before:left-0 before:inset-y-0 before:my-auto before:dark:bg-darkmode-400">
+                            <div className="flex items-center">
+                              {admin.last_login
+                                ? moment(admin.last_login).format(
+                                    "DD-MM-YYYY hh:mm:ss"
+                                  )
+                                : "-"}
+                            </div>
+                          </Table.Td>
+                          <Table.Td className="first:rounded-l-md last:rounded-r-md bg-white border border-r-0 border-l-0 first:border-l last:border-r border-slate-200 dark:bg-darkmode-600 dark:border-darkmode-600 shadow-[20px_3px_20px_#0000000b] py-0 relative before:block before:w-px before:h-8 before:bg-slate-200 before:absolute before:left-0 before:inset-y-0 before:my-auto before:dark:bg-darkmode-400">
+                            <div className="flex items-center">
+                              {admin.created_at
+                                ? moment(admin.created_at).format(
+                                    "DD-MM-YYYY hh:mm:ss"
+                                  )
+                                : "-"}
+                            </div>
+                          </Table.Td>
+                          <Table.Td className="first:rounded-l-md last:rounded-r-md bg-white border border-r-0 border-l-0 first:border-l last:border-r border-slate-200 dark:bg-darkmode-600 dark:border-darkmode-600 shadow-[20px_3px_20px_#0000000b] py-0 relative before:block before:w-px before:h-8 before:bg-slate-200 before:absolute before:left-0 before:inset-y-0 before:my-auto before:dark:bg-darkmode-400">
+                            <div className="flex items-center">
+                              {admin.enable === 1 ? (
+                                <span className="bg-green-100 text-green-700 px-2 py-1 rounded font-semibold text-xs">
+                                  Enabled
+                                </span>
+                              ) : (
+                                <span className="bg-red-100 text-red-700 px-2 py-1 rounded font-semibold text-xs">
+                                  Disabled
+                                </span>
+                              )}
+                            </div>
+                          </Table.Td>
+                          <Table.Td className="first:rounded-l-md last:rounded-r-md bg-white border border-r-0 border-l-0 first:border-l last:border-r border-slate-200 dark:bg-darkmode-600 dark:border-darkmode-600 shadow-[20px_3px_20px_#0000000b] py-0 relative before:block before:w-px before:h-8 before:bg-slate-200 before:absolute before:left-0 before:inset-y-0 before:my-auto before:dark:bg-darkmode-400">
+                            <div className="flex items-center gap-2">
+                              <span
+                                className="flex items-center cursor-pointer"
+                                onClick={() => updateAdmin(admin.id)}
+                              >
+                                <Lucide
+                                  icon="Edit"
+                                  className="w-4 h-4 text-blue-600 dark:text-blue-400"
+                                />
                               </span>
-                            ) : (
-                              <span className="bg-red-100 text-red-700 px-2 py-1 rounded font-semibold text-xs">
-                                Disabled
+                              <span
+                                className="flex items-center cursor-pointer"
+                                onClick={() => openDeleteAdminModal(admin.id)}
+                              >
+                                <Lucide
+                                  icon="Trash2"
+                                  className="w-4 h-4 text-red-600 dark:text-red-500"
+                                />
                               </span>
-                            )}
-                          </div>
-                        </Table.Td>
-                        <Table.Td className="first:rounded-l-md last:rounded-r-md bg-white border border-r-0 border-l-0 first:border-l last:border-r border-slate-200 dark:bg-darkmode-600 dark:border-darkmode-600 shadow-[20px_3px_20px_#0000000b] py-0 relative before:block before:w-px before:h-8 before:bg-slate-200 before:absolute before:left-0 before:inset-y-0 before:my-auto before:dark:bg-darkmode-400">
-                          <div className="flex items-center gap-2">
-                            <span
-                              className="flex items-center cursor-pointer"
-                              onClick={() => updateAdmin(admin.id)}
-                            >
-                              <Lucide
-                                icon="Edit"
-                                className="w-4 h-4 text-blue-600 dark:text-blue-400"
-                              />
-                            </span>
-                            <span
-                              className="flex items-center cursor-pointer"
-                              onClick={() => openDeleteAdminModal(admin.id)}
-                            >
-                              <Lucide
-                                icon="Trash2"
-                                className="w-4 h-4 text-red-600 dark:text-red-500"
-                              />
-                            </span>
-                          </div>
-                        </Table.Td>
-                      </Table.Tr>
-                    ))}
+                            </div>
+                          </Table.Td>
+                        </Table.Tr>
+                      );
+                    })}
                   </Table.Tbody>
                 </Table>
               </div>

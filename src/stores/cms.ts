@@ -3,46 +3,12 @@ import { RootState } from "./store";
 import axios from "axios";
 import { API_PATH } from "../api-services/apiPath";
 import { displayToast } from "./toastSlice";
+import { makeApiCall } from "../api-services/makeApiCall";
+import { SUCCESS_CODE } from "../utils/constants";
 
 // Interface type for CMS values
 interface CmsState {
   length: number;
-  map(
-    arg0: (
-      item: {
-        VersionNumber:
-          | string
-          | number
-          | boolean
-          | React.ReactElement<any, string | React.JSXElementConstructor<any>>
-          | Iterable<React.ReactNode>
-          | React.ReactPortal
-          | null
-          | undefined;
-        Description:
-          | string
-          | number
-          | boolean
-          | React.ReactElement<any, string | React.JSXElementConstructor<any>>
-          | Iterable<React.ReactNode>
-          | React.ReactPortal
-          | null
-          | undefined;
-        Platform:
-          | any
-          | string
-          | number
-          | boolean
-          | React.ReactElement<any, string | React.JSXElementConstructor<any>>
-          | Iterable<React.ReactNode>
-          | React.ReactPortal
-          | null
-          | undefined;
-        IsForceUpdate: any;
-      },
-      idx: React.Key | null | undefined
-    ) => import("react/jsx-runtime").JSX.Element
-  ): import("react").ReactNode;
   cmsData: Array<Record<string, any>>;
   error: boolean;
   loading: boolean;
@@ -66,43 +32,6 @@ const initialState: CmsState = {
   searchText: "",
   status: null,
   length: 0,
-  map: function (
-    arg0: (
-      item: {
-        VersionNumber:
-          | string
-          | number
-          | boolean
-          | React.ReactElement<any, string | React.JSXElementConstructor<any>>
-          | Iterable<React.ReactNode>
-          | React.ReactPortal
-          | null
-          | undefined;
-        Description:
-          | string
-          | number
-          | boolean
-          | React.ReactElement<any, string | React.JSXElementConstructor<any>>
-          | Iterable<React.ReactNode>
-          | React.ReactPortal
-          | null
-          | undefined;
-        Platform:
-          | string
-          | number
-          | boolean
-          | React.ReactElement<any, string | React.JSXElementConstructor<any>>
-          | Iterable<React.ReactNode>
-          | React.ReactPortal
-          | null
-          | undefined;
-        IsForceUpdate: any;
-      },
-      idx: React.Key | null | undefined
-    ) => import("react/jsx-runtime").JSX.Element
-  ): import("react").ReactNode {
-    throw new Error("Function not implemented.");
-  },
 };
 
 // Async thunk for updating a CMS entry
@@ -172,43 +101,21 @@ const initialState: CmsState = {
 export const fetchAllCmsData = createAsyncThunk(
   "cms/fetchAllCmsData",
   async (data: any, { dispatch }) => {
-    let status;
-    if (!data?.status) {
-      status = null;
-    } else {
-      if (data.status == "active") {
-        status = 1;
-      } else {
-        status = 0;
-      }
-    }
     const bodyData: any = {
       limit: data.limit,
       page: data.page,
       search: data.search || "",
-      status,
     };
 
-    let headers: Record<string, string> = {
-      Authorization: `Bearer ${localStorage.getItem("token")}`,
-    };
+    const response = await dispatch(
+      makeApiCall({
+        method: "get",
+        url: `${API_PATH.GET_ALL_CMS}`,
+        data: bodyData,
+      })
+    );
 
-    try {
-      const response = await axios.get(`${API_PATH.GET_ALL_CMS}`, {
-        params: bodyData,
-        headers,
-      });
-
-      return response.data;
-    } catch (error: any) {
-      dispatch(
-        displayToast({
-          msg: error.response?.data?.message || "An error occurred.",
-          type: "Error",
-        })
-      );
-      throw error;
-    }
+    return response.payload;
   }
 );
 
@@ -221,10 +128,10 @@ export const addCmsEntry = createAsyncThunk(
       version_history = data.versionHistory
         .filter((version: any) => version.versionNumber)
         .map((version: any) => ({
-          version_no: version.versionNumber,
-          type: version.platform.toLowerCase(),
-          version_description: version.description,
-          is_force_update: Number(version.forceupdate),
+          title: version.versionNumber,
+          platform: version.platform.toLowerCase() === "android" ? 1 : 0,
+          description: version.description,
+          is_force: Number(version.forceupdate) === 1 ? true : false,
         }));
     }
     const bodyData: any = {
@@ -236,31 +143,51 @@ export const addCmsEntry = createAsyncThunk(
       version_history,
     };
 
-    let headers: Record<string, string> = {
-      Authorization: `Bearer ${localStorage.getItem("token")}`,
+    const response = await dispatch(
+      makeApiCall({
+        method: "post",
+        url: `${API_PATH.ADD_CMS}`,
+        data: bodyData,
+      })
+    );
+    return response.payload;
+  }
+);
+
+export const updateCmsEntry = createAsyncThunk(
+  "cms/updateCmsEntry",
+  async (data: any, { dispatch }) => {
+    // console.log('data: ', data);
+    let version_history: any = [];
+    if (data.version_history.length > 0) {
+      version_history = data.version_history
+      // .filter((version: any) => version.versionNumber)
+      .map((version: any) => ({
+        title: version.version_no,
+        platform: version.type.toLowerCase(),
+        description: version.version_description,
+        is_force: Number(version.is_force_update),
+      }));
+    }
+    const bodyData: any = {
+      id: data.id,
+      name: data.name,
+      title: data.title,
+      description: data.description,
+      meta_tags: data.meta_tags,
+      meta_description: data.meta_description,
+      version_history,
     };
 
-    try {
-      const response = await axios.post(`${API_PATH.ADD_CMS}`, bodyData, {
-        headers,
-      });
+    const response = await dispatch(
+      makeApiCall({
+        method: "patch",
+        url: `${API_PATH.UPDATE_CMS}`,
+        data: bodyData,
+      })
+    );
 
-      dispatch(
-        displayToast({
-          msg: response.data.message || "CMS entry added successfully.",
-          type: "Success",
-        })
-      );
-      return response.data;
-    } catch (error: any) {
-      dispatch(
-        displayToast({
-          msg: error.response?.data?.message || "Failed to add CMS entry.",
-          type: "Error",
-        })
-      );
-      throw error;
-    }
+    return response.payload;
   }
 );
 
@@ -304,124 +231,57 @@ export const addCmsEntry = createAsyncThunk(
 
 export const fetchCmsById = createAsyncThunk(
   "cms/fetchCmsById",
-  async (id: number, { rejectWithValue }) => {
-    try {
-      let headers: Record<string, string> = {
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
-      };
-      const response = await axios.get(`${API_PATH.GET_SINGLE_CMS}/${id}`, {
-        headers,
-      });
-
-      return response.data.data; // Assuming the API response returns data under "data"
-    } catch (error: any) {
-      return rejectWithValue(
-        error.response?.data?.message || "Error fetching CMS by ID"
-      );
-    }
+  async (id: number, { dispatch }) => {
+    const response = await dispatch(
+      makeApiCall({
+        method: "get",
+        url: `${API_PATH.GET_SINGLE_CMS}/${id}`,
+      })
+    );
+    return response.payload;
   }
 );
 
 export const deleteCmsEntry = createAsyncThunk(
-  "cms/deleteCmsEntry",
+  "cms/deleteCmsEntry ",
   async (id: number, { dispatch }) => {
-    let headers: Record<string, string> = {
-      Authorization: `Bearer ${localStorage.getItem("token")}`,
-    };
-
-    try {
-      const response = await axios.delete(`${API_PATH.DELETE_CMS}/${id}`, {
-        headers,
-      });
-
-      dispatch(
-        displayToast({
-          msg: response.data.message || "CMS deleted successfully.",
-          type: "Success",
-        })
-      );
-
-      return { id, success: response.data.success };
-    } catch (error: any) {
-      dispatch(
-        displayToast({
-          msg: error.response?.data?.message || "An error occurred.",
-          type: "Error",
-        })
-      );
-      throw error;
-    }
+    const response = await dispatch(
+      makeApiCall({
+        method: "delete",
+        url: `${API_PATH.DELETE_CMS}/${id}`,
+      })
+    );
+    return response.payload;
   }
 );
 
-// support.ts
-// export const deleteVersionHistory = createAsyncThunk(
-//   "cms/deleteVersionHistory",
-//   async (data: { cmsId: number; versionHistoryId: number }, { dispatch }) => {
-//     let headers: Record<string, string> = {
-//       Authorization: `Bearer ${localStorage.getItem("token")}`,
-//     };
-
-//     try {
-//       const response = await axios.delete(
-//         `${API_PATH.DELETE_VERSION_HISTORY}`,
-//         {
-//           headers,
-//           data: {
-//             cmsId: data.cmsId,
-//             versionHistoryId: data.versionHistoryId,
-//           },
-//         }
-//       );
-
-//       dispatch(
-//         displayToast({
-//           msg: response.data.message || "Version history deleted successfully.",
-//           type: "Success",
-//         })
-//       );
-//       return response.data;
-//     } catch (error: any) {
-//       dispatch(
-//         displayToast({
-//           msg:
-//             error.response?.data?.message ||
-//             "Failed to delete version history.",
-//           type: "Error",
-//         })
-//       );
-//       throw error;
-//     }
-//   }
-// );
+export const deleteVersionHistory = createAsyncThunk(
+  "cms/deleteVersionHistory",
+  async (data: { cmsId: number; versionHistoryId: number }, { dispatch }) => {
+    const response = await dispatch(
+      makeApiCall({
+        method: "delete",
+        url: `${API_PATH.DELETE_VERSION_HISTORY}`,
+        data: {
+          cms_id: data.cmsId,
+          version_history_id: data.versionHistoryId,
+        },
+      })
+    );
+    return response.payload;
+  }
+);
 
 export const fetchCmsDescription = createAsyncThunk(
   "cms/fetchCmsDescription",
   async (data: { cmsId: number; isRelease: boolean }, { dispatch }) => {
-    let headers: Record<string, string> = {
-      Authorization: `Bearer ${localStorage.getItem("token")}`,
-    };
-
-    try {
-      const response = await axios.get(
-        `${API_PATH.VIEW_CMS}/${data.cmsId}`,
-        // {
-        //   cmsId: data.cmsId,
-        //   is_release: data.isRelease,
-        // },
-        { headers }
-      );
-      return response.data;
-    } catch (error: any) {
-      dispatch(
-        displayToast({
-          msg:
-            error.response?.data?.message || "Failed to fetch CMS description",
-          type: "Error",
-        })
-      );
-      throw error;
-    }
+    const response = await dispatch(
+      makeApiCall({
+        method: "get",
+        url: `${API_PATH.VIEW_CMS}/${data.cmsId}`,
+      })
+    );
+    return response.payload;
   }
 );
 
@@ -436,12 +296,12 @@ export const cmsSlice = createSlice({
         state.loading = true;
       })
       .addCase(fetchAllCmsData.fulfilled, (state, action) => {
-        if (action.payload !== undefined && action.payload.type === "Success") {
-          state.cmsData = action.payload.data.cms_details;
-          state.currentPage = action.payload.page;
-          state.limit = action.payload.limit;
-          state.totalPages = action.payload.totalPages;
-          state.totalRecords = action.payload.totalRecords;
+        if (action.payload.status === SUCCESS_CODE) {
+          state.cmsData = action.payload.data.data.cms_details;
+          state.currentPage = action.payload.data.data.current_page;
+          state.limit = action.payload.data.data.limit;
+          state.totalPages = action.payload.data.data.total_pages;
+          state.totalRecords = action.payload.data.data.total_records;
           state.loading = false;
           state.error = false;
         }
@@ -455,36 +315,6 @@ export const cmsSlice = createSlice({
         state.totalPages = 1;
         state.totalRecords = 0;
       })
-      .addCase(addCmsEntry.pending, (state) => {
-        state.loading = true;
-      })
-      .addCase(addCmsEntry.fulfilled, (state, action) => {
-        state.loading = false;
-        state.error = false;
-        if (action.payload && action.payload.type === "Success") {
-          state.cmsData.push(action.payload.data);
-        }
-      })
-      .addCase(addCmsEntry.rejected, (state) => {
-        state.loading = false;
-        state.error = true;
-      })
-      // .addCase(activateDeactivateCmsEntry.pending, (state) => {
-      //   state.loading = true;
-      // })
-      // .addCase(activateDeactivateCmsEntry.fulfilled, (state, action) => {
-      //   state.loading = false;
-      //   state.error = false;
-      //   const { id, status } = action.payload;
-      //   const cmsItem = state.cmsData.find((item) => item.Id === id);
-      //   if (cmsItem) {
-      //     cmsItem.Active = status === "1" ? 1 : 0;
-      //   }
-      // })
-      // .addCase(activateDeactivateCmsEntry.rejected, (state) => {
-      //   state.loading = false;
-      //   state.error = true;
-      // })
       // .addCase(updateCmsEntry.pending, (state) => {
       //   state.loading = true;
       // })
@@ -525,13 +355,15 @@ export const cmsSlice = createSlice({
         state.loading = true;
       })
       .addCase(fetchCmsDescription.fulfilled, (state, action) => {
-        if (action.payload && action.payload.type === "Success") {
-          state.cmsData = action.payload?.data?.version_history?.map((item: any) => ({
-            VersionNumber: item.title,
-            Platform: item.platform === 1 ? "Android" : "iOS",
-            Description: item.description,
-            IsForceUpdate: item.is_force,
-          }));
+        if (action.payload.status === SUCCESS_CODE) {
+          state.cmsData = action.payload?.data?.data?.version_history?.map(
+            (item: any) => ({
+              VersionNumber: item.title,
+              Platform: item.platform === 1 ? "Android" : "iOS",
+              Description: item.description,
+              IsForceUpdate: item.is_force,
+            })
+          );
           state.loading = false;
           state.error = false;
         }
