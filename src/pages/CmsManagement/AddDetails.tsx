@@ -1,7 +1,12 @@
 import React, { ChangeEvent, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "../../stores/store";
-import { FormInput, FormLabel, FormCheck, FormTextarea } from "../../base-components/Form";
+import {
+  FormInput,
+  FormLabel,
+  FormCheck,
+  FormTextarea,
+} from "../../base-components/Form";
 import Button from "../../base-components/Button";
 import { ClassicEditor } from "../../base-components/Ckeditor";
 import {
@@ -15,8 +20,13 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { toast } from "react-toastify";
 import Dialog from "@mui/material/Dialog";
 import DialogContent from "@mui/material/DialogContent";
-import PageHeader from './../../components/PageHeader/index';
+import PageHeader from "./../../components/PageHeader/index";
 import { SUCCESS_CODE } from "../../utils/constants";
+// import { Controller, useForm } from "react-hook-form";
+// import { Autocomplete, TextField } from "@mui/material";
+// import { capitalizeByCharacter } from "../../utils/helper";
+// import { selectDarkMode } from "../../stores/darkModeSlice";
+// import { useAppSelector } from "../../stores/hooks";
 
 type InitialState = {
   name: string;
@@ -63,6 +73,13 @@ type ErrorState = {
   title: string;
 };
 
+type DynamicErrorState = {
+  id: number | string;
+  description: string;
+  versionNumber: string;
+  platform: string;
+};
+
 const AddDetails: React.FC = () => {
   const [initFormData, setInitFormData] = useState<FormState>({
     ...initialState,
@@ -75,7 +92,7 @@ const AddDetails: React.FC = () => {
         description: "",
         versionNumber: "",
         platform: "",
-        forceupdate: 'false',
+        forceupdate: "0",
         is_created: 1,
       },
     ]
@@ -84,12 +101,30 @@ const AddDetails: React.FC = () => {
     name: "",
     title: "",
   });
+  const [dynamicFormErrors, setDynamicFormErrors] = useState<
+    Array<DynamicErrorState>
+  >([
+    {
+      id: 1,
+      description: "",
+      versionNumber: "",
+      platform: "",
+    },
+  ]);
+
+  // const forceUpdateDropdown = [
+  //   { value: 1, label: "True" },
+  //   { value: 2, label: "False" },
+  // ];
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false);
   const [selectedFieldId, setSelectedFieldId] = useState<
     number | string | null
   >(null);
+  // const [filterForceUpdateStatus, setFilterForceUpdateStatus] =
+  //   useState<string>("");
+  // const darkMode = useAppSelector(selectDarkMode);
 
   const dispatch: AppDispatch = useDispatch();
   const navigate = useNavigate();
@@ -97,11 +132,51 @@ const AddDetails: React.FC = () => {
   const location = useLocation();
   const cmsId = location.state?.cmsId;
 
+  // const { control } = useForm({
+  //   mode: "onChange",
+  // });
+
   const handleDynamicInputChange = (
     id: number | string,
     field: keyof DynamicFieldsState,
     value: string | number
   ) => {
+    if (field === "versionNumber" || field === "description") {
+      if (value === "") {
+        setDynamicFormErrors((prevErrors) =>
+          prevErrors.map((error) =>
+            error.id === id
+              ? { ...error, [field]: `This field is required` }
+              : error
+          )
+        );
+      } else {
+        setDynamicFormErrors((prevErrors) =>
+          prevErrors.map((error) =>
+            error.id === id ? { ...error, [field]: "" } : error
+          )
+        );
+      }
+    }
+
+    if (field === "platform") {
+      if (value === "") {
+        setDynamicFormErrors((prevErrors) =>
+          prevErrors.map((error) =>
+            error.id === id
+              ? { ...error, [field]: `Please select a platform` }
+              : error
+          )
+        );
+      } else {
+        setDynamicFormErrors((prevErrors) =>
+          prevErrors.map((error) =>
+            error.id === id ? { ...error, [field]: "" } : error
+          )
+        );
+      }
+    }
+
     setDynamicFields((prevFields) =>
       prevFields.map((item) => {
         if (item.id === id) {
@@ -127,7 +202,7 @@ const AddDetails: React.FC = () => {
         description: "",
         versionNumber: "",
         platform: "",
-        forceupdate: 'false',
+        forceupdate: "0",
         is_created: 1,
       },
     ]);
@@ -197,15 +272,19 @@ const AddDetails: React.FC = () => {
         version_history: dynamicFields.map((field) => ({
           id: typeof field.id === "string" ? Number(field.id) : field.id,
           version_no: field.versionNumber,
-          type: field.platform,
+          platform: field.platform,
           version_description: field.description,
-          is_force_update: field.forceupdate === 'true' ? 1 : 0
+          forceupdate: Number(field.forceupdate),
+          is_created: field.is_created ?? 0,
+          is_updated: field.is_updated ?? 0,
         })),
       };
 
       const res: any = await dispatch(updateCmsEntry(formattedData)).unwrap();
       if (res?.status === SUCCESS_CODE) {
-        toast.success(res?.data?.message || "Cms has been updated successfully!");
+        toast.success(
+          res?.data?.message || "Cms has been updated successfully!"
+        );
         navigate("/cms");
       } else {
         toast.error(res?.response?.data?.message || "Failed to update cms.");
@@ -221,22 +300,42 @@ const AddDetails: React.FC = () => {
     setIsLoading(true);
     try {
       const errors: {
-      name: string;
-      title: string;
-    } = { name: "", title: "" };
+        name: string;
+        title: string;
+      } = { name: "", title: "" };
 
       if (initFormData.name === "") {
-      errors.name = "Name is required";
-    }
-    if (initFormData.title === "") {
-      errors.title = "Page title is required";
-    }
-    setFormErrors(errors as ErrorState);
-    if (
-      errors.name ||
-      errors.title
-    )
-      return;
+        errors.name = "Name is required";
+      }
+      if (initFormData.title === "") {
+        errors.title = "Page title is required";
+      }
+      setFormErrors(errors as ErrorState);
+      if (errors.name || errors.title) return;
+
+      if(initFormData.isRelease) {
+        if (
+          dynamicFields.some(
+            (field) =>
+              field.versionNumber === "" ||
+              field.platform === "" ||
+              field.description === ""
+          )
+        ) {
+          setDynamicFormErrors(
+            dynamicFields.map((field) => ({
+              id: field.id,
+              versionNumber:
+                field.versionNumber === "" ? "This field is required" : "",
+              platform: field.platform === "" ? "Please select a platform" : "",
+              description:
+                field.description === "" ? "This field is required" : "",
+            }))
+          );
+          setIsLoading(false);
+          return;
+        }
+      }
 
       if (cmsId) {
         await handleUpdateCms(cmsId, initFormData);
@@ -245,11 +344,15 @@ const AddDetails: React.FC = () => {
           addCmsEntry({ ...initFormData, versionHistory: dynamicFields })
         ).unwrap();
         if (response?.status === SUCCESS_CODE) {
-          toast.success(response?.data?.message || "Cms has been added successfully");
+          toast.success(
+            response?.data?.message || "Cms has been added successfully"
+          );
           navigate("/cms");
           setInitFormData({ ...initialState });
         } else {
-          toast.error(response?.response?.data?.message || "Failed to add cms.");
+          toast.error(
+            response?.response?.data?.message || "Failed to add cms."
+          );
         }
       }
     } catch (error: any) {
@@ -273,7 +376,10 @@ const AddDetails: React.FC = () => {
             name: response?.data?.data?.name,
             title: response?.data?.data?.page_title,
             description: response?.data?.data?.page_description ?? "",
-            isRelease: response?.data?.data?.version_history?.length !== 0 ? true : false,
+            isRelease:
+              response?.data?.data?.version_history?.length !== 0
+                ? true
+                : false,
             meta_tags: response?.data?.data?.meta_tags || "",
             meta_description: response?.data?.data?.meta_description || "",
           });
@@ -283,8 +389,8 @@ const AddDetails: React.FC = () => {
                 id: version.id,
                 description: version.description,
                 versionNumber: version.title,
-                platform: version.platform === 1 ? "Android" : "iOS",
-                forceupdate: version.is_force === 'true' ? true : false,
+                platform: version.platform === 1 ? "android" : "ios",
+                forceupdate: String(version.is_force),
               }))
             );
           }
@@ -306,7 +412,9 @@ const AddDetails: React.FC = () => {
     }));
   };
 
-  const handleInputChange = <T extends HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>(
+  const handleInputChange = <
+    T extends HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+  >(
     e: ChangeEvent<T>,
     field: string
   ) => {
@@ -325,15 +433,19 @@ const AddDetails: React.FC = () => {
     }
 
     const value =
-      e.target.type === "checkbox"
-        ? (e.target as HTMLInputElement).checked
-        : e.target.value;
+    e.target.type === "checkbox"
+    ? (e.target as HTMLInputElement).checked
+    : e.target.value;
 
     setInitFormData((prev) => ({
       ...prev,
       [field]: value,
     }));
   };
+
+  // const filterByForceUpdateStatus = (selectedVal: string) => {
+  //   setFilterForceUpdateStatus(selectedVal);
+  // };
 
   return (
     <>
@@ -359,7 +471,9 @@ const AddDetails: React.FC = () => {
               encType="multipart/form-data"
             >
               <div className="col-span-12 intro-y sm:col-span-6">
-                <FormLabel htmlFor="name">Name<span className="text-red-600 font-bold ms-1">*</span></FormLabel>
+                <FormLabel htmlFor="name">
+                  Name<span className="text-red-600 font-bold ms-1">*</span>
+                </FormLabel>
                 <FormInput
                   id="name"
                   type="text"
@@ -370,13 +484,14 @@ const AddDetails: React.FC = () => {
                   value={initFormData.name}
                 />
                 {formErrors.name && (
-                    <p className="mt-1 text-xs text-red-500">
-                      {formErrors.name}
-                    </p>
-                  )}
+                  <p className="mt-1 text-xs text-red-500">{formErrors.name}</p>
+                )}
               </div>
               <div className="col-span-12 intro-y sm:col-span-6">
-                <FormLabel htmlFor="title">Page Title<span className="text-red-600 font-bold ms-1">*</span></FormLabel>
+                <FormLabel htmlFor="title">
+                  Page Title
+                  <span className="text-red-600 font-bold ms-1">*</span>
+                </FormLabel>
                 <FormInput
                   id="title"
                   type="text"
@@ -387,10 +502,10 @@ const AddDetails: React.FC = () => {
                   value={initFormData.title}
                 />
                 {formErrors.title && (
-                    <p className="mt-1 text-xs text-red-500">
-                      {formErrors.title}
-                    </p>
-                  )}
+                  <p className="mt-1 text-xs text-red-500">
+                    {formErrors.title}
+                  </p>
+                )}
               </div>
 
               {!cmsId && (
@@ -420,6 +535,9 @@ const AddDetails: React.FC = () => {
                           <div className="col-span-12 sm:col-span-4">
                             <FormLabel htmlFor={`versionNumber-${field.id}`}>
                               Version Number
+                              <span className="text-red-600 font-bold ms-1">
+                                *
+                              </span>
                             </FormLabel>
                             <FormInput
                               id={`versionNumber-${field.id}`}
@@ -434,10 +552,24 @@ const AddDetails: React.FC = () => {
                               }
                               value={field.versionNumber || ""}
                             />
+                            {dynamicFormErrors.find(
+                              (error) => error.id === field.id
+                            )?.versionNumber && (
+                              <p className="mt-1 text-xs text-red-500">
+                                {
+                                  dynamicFormErrors.find(
+                                    (error) => error.id === field.id
+                                  )?.versionNumber
+                                }
+                              </p>
+                            )}
                           </div>
                           <div className="col-span-12 sm:col-span-4">
                             <FormLabel htmlFor={`platform-${field.id}`}>
                               Platform
+                              <span className="text-red-600 font-bold ms-1">
+                                *
+                              </span>
                             </FormLabel>
                             <select
                               id={`platform-${field.id}`}
@@ -456,6 +588,17 @@ const AddDetails: React.FC = () => {
                               <option value="ios">IOS</option>
                               <option value="android">Android</option>
                             </select>
+                            {dynamicFormErrors.find(
+                              (error) => error.id === field.id
+                            )?.platform && (
+                              <p className="mt-1 text-xs text-red-500">
+                                {
+                                  dynamicFormErrors.find(
+                                    (error) => error.id === field.id
+                                  )?.platform
+                                }
+                              </p>
+                            )}
                           </div>
                           <div className="col-span-12 sm:col-span-4">
                             <FormLabel htmlFor={`forceupdate-${field.id}`}>
@@ -474,14 +617,89 @@ const AddDetails: React.FC = () => {
                               }
                               className="w-full px-4 py-2 text-sm border border-gray-300 rounded-lg shadow-sm hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow duration-200"
                             >
-                              <option value="">Select Force Update</option>
-                              <option value='true'>True</option>
-                              <option value="false">False</option>
+                              {/* <option value="">Select Force Update</option> */}
+                              <option value="1">True</option>
+                              <option value="0">False</option>
                             </select>
                           </div>
+                          {/* <div className="col-span-12 sm:col-span-4">
+                            <Controller
+                              name="forceUpdateStatus"
+                              control={control}
+                              render={({ field: { value } }) => {
+                                const selectedState = forceUpdateDropdown?.find(
+                                  (option) => option.value === value
+                                );
+                                const selectedVal = forceUpdateDropdown?.find(
+                                  (option) =>
+                                    option.value ===
+                                    Number(filterForceUpdateStatus)
+                                );
+                                const defaultValue =
+                                  (selectedState === undefined
+                                    ? selectedVal
+                                    : selectedState) || null;
+
+                                return (
+                                  <Autocomplete
+                                    disablePortal
+                                    size="small"
+                                    id="combo-box-role"
+                                    componentsProps={{
+                                      popper: {
+                                        modifiers: [
+                                          { name: "flip", enabled: false },
+                                        ],
+                                      },
+                                    }}
+                                    value={defaultValue as any}
+                                    options={forceUpdateDropdown?.map(
+                                      (data) => ({
+                                        value: data.value,
+                                        label: capitalizeByCharacter(
+                                          data.label,
+                                          "_"
+                                        ),
+                                      })
+                                    )}
+                                    getOptionLabel={(option) =>
+                                      option.label ??
+                                      capitalizeByCharacter(option.label, "_")
+                                    }
+                                    onChange={(_, newVal) =>
+                                      filterByForceUpdateStatus(newVal?.value)
+                                    }
+                                    isOptionEqualToValue={(option, value) =>
+                                      option.value ===
+                                      (value.value ? value.value : null)
+                                    }
+                                    renderInput={(params) => (
+                                      <TextField
+                                        {...params}
+                                        label="Select Force Update"
+                                        className="custom-select w-full"
+                                        InputLabelProps={{
+                                          style: {
+                                            fontSize: 12,
+                                            color: `${
+                                              darkMode ? "inherit" : ""
+                                            }`,
+                                            paddingTop: 3,
+                                          },
+                                        }}
+                                      />
+                                    )}
+                                  />
+                                );
+                              }}
+                            />
+                          </div> */}
                           <div className="col-span-12">
                             <FormLabel htmlFor={`description-${field.id}`}>
                               Version Description
+                              <span className="text-red-600 font-bold ms-1">
+                                *
+                              </span>
                             </FormLabel>
                             <textarea
                               id={`description-${field.id}`}
@@ -497,6 +715,17 @@ const AddDetails: React.FC = () => {
                               className="w-full px-4 py-2 text-sm border border-gray-300 rounded-lg shadow-sm hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow duration-200"
                               rows={4}
                             />
+                            {dynamicFormErrors.find(
+                              (error) => error.id === field.id
+                            )?.description && (
+                              <p className="mt-1 text-xs text-red-500">
+                                {
+                                  dynamicFormErrors.find(
+                                    (error) => error.id === field.id
+                                  )?.description
+                                }
+                              </p>
+                            )}
                           </div>
 
                           <div className="col-span-12 flex justify-between">
@@ -573,7 +802,9 @@ const AddDetails: React.FC = () => {
               </div>
 
               <div className="col-span-6 intro-y sm:col-span-6">
-                <FormLabel htmlFor="meta_description">Meta Description</FormLabel>
+                <FormLabel htmlFor="meta_description">
+                  Meta Description
+                </FormLabel>
                 <FormTextarea
                   id="meta_description"
                   value={initFormData.meta_description}

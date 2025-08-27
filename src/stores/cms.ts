@@ -126,13 +126,13 @@ export const addCmsEntry = createAsyncThunk(
     let version_history: any = [];
     if (data.versionHistory.length > 0) {
       version_history = data.versionHistory
-        .filter((version: any) => version.versionNumber)
-        .map((version: any) => ({
-          title: version.versionNumber,
-          platform: version.platform.toLowerCase() === "android" ? 1 : 0,
-          description: version.description,
-          is_force: Number(version.forceupdate) === 1 ? true : false,
-        }));
+      .filter((version: any) => version.versionNumber)
+      .map((version: any) => ({
+        title: version.versionNumber,
+        platform: version.platform.toLowerCase() === "android" ? 1 : 0,
+        description: version.description,
+        is_force: Number(version.forceupdate) === 1 ? true : false,
+      }));
     }
     const bodyData: any = {
       name: data.name,
@@ -157,18 +157,21 @@ export const addCmsEntry = createAsyncThunk(
 export const updateCmsEntry = createAsyncThunk(
   "cms/updateCmsEntry",
   async (data: any, { dispatch }) => {
-    // console.log('data: ', data);
     let version_history: any = [];
     if (data.version_history.length > 0) {
+      data.is_release = true;
       version_history = data.version_history
-      // .filter((version: any) => version.versionNumber)
       .map((version: any) => ({
         title: version.version_no,
-        platform: version.type.toLowerCase(),
+        platform: version.platform.toLowerCase() === "android" ? 1 : 0,
         description: version.version_description,
-        is_force: Number(version.is_force_update),
+        is_force: Number(version.forceupdate) === 1 ? true : false,
+        is_created: version.is_created,
+        is_updated: version.is_updated,
+        ...(version.is_updated === 1 ? { id: version.id } : {})
       }));
     }
+    
     const bodyData: any = {
       id: data.id,
       name: data.name,
@@ -176,6 +179,7 @@ export const updateCmsEntry = createAsyncThunk(
       description: data.description,
       meta_tags: data.meta_tags,
       meta_description: data.meta_description,
+      is_release: data.is_release,
       version_history,
     };
 

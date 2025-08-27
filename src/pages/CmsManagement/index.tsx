@@ -21,25 +21,23 @@ import CustomLoader from "../../components/Loader/CustomLoader";
 import { Dialog } from "../../base-components/Headless";
 import { SUCCESS_CODE } from "../../utils/constants";
 import { toast } from "react-toastify";
+import CancelSearchText from "../../components/HelperButton/CancelSearchText";
+import ResetOrSearchButton from "../../components/HelperButton";
 
 const Index = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
 
   // State for managing data
-  const [searchInput, setSearchInput] = useState("");
   const [status, setStatus] = useState("active");
   const [currentPage, setCurrentPage] = useState(1);
   const [dataLimit, setDataLimit] = useState(10);
-  const [showStatusDialog, setShowStatusDialog] = useState(false);
-  const [selectedCms, setSelectedCms] = useState({ id: 0, status: 0 });
-  const [setCmsData] = useState([]);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [selectedCmsId, setSelectedCmsId] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [searchText, setSearchText] = useState("");
-  const [isActivating, setIsActivating] = useState(false);
   const [triggerSearch, setTriggerSearch] = useState(false);
+  const [isResetLoading, setIsResetLoading] = useState(false);
   const deleteButtonRef = useRef(null);
 
   const { cmsData, totalPages, loading, totalRecords } = useSelector(
@@ -57,7 +55,9 @@ const Index = () => {
         setIsLoading(true);
         const res: any = await dispatch(deleteCmsEntry(selectedCmsId));
         if (res.payload.status === SUCCESS_CODE) {
-          toast.success(res.payload.message || "Cms has been deleted successfully.");
+          toast.success(
+            res.payload.message || "Cms has been deleted successfully."
+          );
           await dispatch(
             fetchAllCmsData({
               limit: dataLimit,
@@ -74,12 +74,6 @@ const Index = () => {
     } catch (error) {
       console.log("error while deleting cms: ", error);
     }
-  };
-
-  const handleToggleStatusClick = (id: number, currentStatus: number) => {
-    setSelectedCms({ id, status: currentStatus });
-    setIsActivating(currentStatus === 0);
-    setShowStatusDialog(true);
   };
 
   // const confirmToggleStatus = () => {
@@ -104,10 +98,6 @@ const Index = () => {
   //   setShowStatusDialog(false);
   // };
 
-  const cancelToggleStatus = () => {
-    setShowStatusDialog(false);
-  };
-
   const handleSearchInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     setSearchText(e.target.value);
     if (e.target.value.trim() === "") {
@@ -122,13 +112,22 @@ const Index = () => {
   const handleDataLimitChange = (e: ChangeEvent<HTMLSelectElement>) =>
     setDataLimit(Number(e.target.value));
 
-  const formatCreatedAt = (date: string | number | Date) =>
-    new Date(date).toLocaleDateString();
-
-  const clearSearchInput = () => {
+  const resetFilter = async () => {
     setSearchText("");
-    setCurrentPage(1);
-    setTriggerSearch((prev) => !prev);
+    try {
+      setIsResetLoading(true);
+      await dispatch(
+       fetchAllCmsData({
+        limit: dataLimit,
+        page: 1,
+      })
+      );
+    } catch (error) {
+      console.log("Err--", error);
+    } finally {
+      setIsResetLoading(false);
+      setCurrentPage(1);
+    }
   };
 
   useEffect(() => {
@@ -175,81 +174,66 @@ const Index = () => {
       console.error("Error fetching cms by ID:", err);
     }
   };
-
-  const handleSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") {
+  
+  const handleSearchAndFilter = async () => {
+    try {
+      setIsLoading(true);
+      await dispatch(
+        fetchAllCmsData({
+          limit: dataLimit,
+          page: 1,
+          search: searchText,
+        })
+      );
+    } catch (error) {
+      console.log("Err--", error);
+    } finally {
+      setIsLoading(false);
       setCurrentPage(1);
-      setTriggerSearch((prev) => !prev);
     }
   };
 
   return (
     <div>
       <div>
-        <div className="flex px-2 flex-wrap gap-5 justify-between mt-5">
-          <div className="w-full sm:flex-1">
+        <div className="grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 mt-3 sm:mt-5 justify-end sm:justify-end flex sm:flex-row flex-col items-end">
+          {/* Search */}
+          <div className="w-full sm:order-2 order-1 sm:ml-auto">
             <div className="relative text-slate-500">
               <FormInput
                 type="text"
-                className="pr-10 !box dark:text-gray-300"
-                placeholder="Search by name, slug and title"
-                value={searchText}
+                className="dark:text-gray-300"
+                placeholder="Search by admin name, email, phone number"
                 onChange={handleSearchInputChange}
-                onKeyDown={handleSearchKeyDown}
+                value={searchText}
+                name="AdminSearch"
               />
-              {searchText ? (
-                <span
-                  className="absolute inset-y-0 right-0 w-4 h-4 my-auto mr-3 cursor-pointer"
-                  onClick={clearSearchInput}
-                >
-                  &#x2715;
-                </span>
-              ) : (
-                <Lucide
-                  icon="Search"
-                  className="absolute inset-y-0 right-0 w-4 h-4 my-auto mr-3"
-                />
-              )}
+              {searchText && <CancelSearchText setSearchText={setSearchText} />}
             </div>
           </div>
-          <Button
-            variant="primary"
-            className="mb-2 mr-2 sm:text-sm text-xs"
-            onClick={() => navigate("/cms/manage")}
-          >
-            <Lucide icon="PlusCircle" className="mr-2 w-5" /> Add Details
-          </Button>
-        </div>
 
-        {/* <Dialog
-          open={showStatusDialog}
-          onClose={cancelToggleStatus}
-          className="fixed inset-0 flex justify-center items-center z-50 bg-black bg-opacity-50"
-        >
-          <DialogContent className="max-w-lg w-full p-6 bg-white rounded-lg shadow-2xl">
-            <div className="p-5 text-center">
-              <div className="mt-5">
-                <h3 className="text-xl">
-                  {isActivating
-                    ? "Are you sure you want to activate this cms?"
-                    : "Are you sure you want to deactivate this cms?"}
-                </h3>
-              </div>
-            </div>
-            <div className="px-5 pb-8 text-center">
-              <Button variant="danger" onClick={confirmToggleStatus}>
-                Confirm
-              </Button>
-              <Button
-                variant="secondary"
-                className="ml-2"
-                onClick={cancelToggleStatus}
-              >
-                Cancel
-              </Button>
-            </div>
-          </DialogContent>
-        </Dialog> */}
+          {/* Buttons */}
+          <div className="flex items-center gap-2 sm:order-3 order-2 sm:ml-2">
+            <ResetOrSearchButton
+              type="search"
+              disabled={isLoading}
+              onClick={handleSearchAndFilter}
+            />
+            <ResetOrSearchButton
+              type="reset"
+              disabled={isResetLoading}
+              onClick={resetFilter}
+            />
+            <Button
+              variant="primary"
+              onClick={() => navigate("/cms/manage")}
+              className="w-max"
+            >
+              <Lucide icon="PlusCircle" className="w-4 h-4 mr-2" />
+              Add CMS Details
+            </Button>
+          </div>
+        </div>
 
         {loading ? (
           <CustomLoader color="fill-orange-600" />
