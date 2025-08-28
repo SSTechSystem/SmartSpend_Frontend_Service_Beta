@@ -203,7 +203,7 @@ const Index = () => {
               <FormInput
                 type="text"
                 className="dark:text-gray-300"
-                placeholder="Search by admin name, email, phone number"
+                placeholder="Search by cms name, slug and page title"
                 onChange={handleSearchInputChange}
                 value={searchText}
                 name="AdminSearch"

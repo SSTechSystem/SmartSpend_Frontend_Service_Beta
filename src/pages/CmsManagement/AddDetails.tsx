@@ -22,6 +22,7 @@ import Dialog from "@mui/material/Dialog";
 import DialogContent from "@mui/material/DialogContent";
 import PageHeader from "./../../components/PageHeader/index";
 import { SUCCESS_CODE } from "../../utils/constants";
+import VersionHistoryFields from "../../components/Cms/VersionHistoryFields";
 // import { Controller, useForm } from "react-hook-form";
 // import { Autocomplete, TextField } from "@mui/material";
 // import { capitalizeByCharacter } from "../../utils/helper";
@@ -313,7 +314,7 @@ const AddDetails: React.FC = () => {
       setFormErrors(errors as ErrorState);
       if (errors.name || errors.title) return;
 
-      if(initFormData.isRelease) {
+      if (initFormData.isRelease) {
         if (
           dynamicFields.some(
             (field) =>
@@ -433,9 +434,9 @@ const AddDetails: React.FC = () => {
     }
 
     const value =
-    e.target.type === "checkbox"
-    ? (e.target as HTMLInputElement).checked
-    : e.target.value;
+      e.target.type === "checkbox"
+        ? (e.target as HTMLInputElement).checked
+        : e.target.value;
 
     setInitFormData((prev) => ({
       ...prev,
@@ -523,259 +524,15 @@ const AddDetails: React.FC = () => {
                 </div>
               )}
 
-              {initFormData.isRelease &&
-                dynamicFields.map(
-                  (field, index) =>
-                    field.is_deleted !== 1 && (
-                      <div
-                        key={field.id}
-                        className="col-span-12 border p-4 rounded-lg bg-gray-100"
-                      >
-                        <div className="grid grid-cols-12 gap-4">
-                          <div className="col-span-12 sm:col-span-4">
-                            <FormLabel htmlFor={`versionNumber-${field.id}`}>
-                              Version Number
-                              <span className="text-red-600 font-bold ms-1">
-                                *
-                              </span>
-                            </FormLabel>
-                            <FormInput
-                              id={`versionNumber-${field.id}`}
-                              type="text"
-                              name="versionNumber"
-                              onInput={(e: ChangeEvent<HTMLInputElement>) =>
-                                handleDynamicInputChange(
-                                  field.id,
-                                  "versionNumber",
-                                  e.target.value
-                                )
-                              }
-                              value={field.versionNumber || ""}
-                            />
-                            {dynamicFormErrors.find(
-                              (error) => error.id === field.id
-                            )?.versionNumber && (
-                              <p className="mt-1 text-xs text-red-500">
-                                {
-                                  dynamicFormErrors.find(
-                                    (error) => error.id === field.id
-                                  )?.versionNumber
-                                }
-                              </p>
-                            )}
-                          </div>
-                          <div className="col-span-12 sm:col-span-4">
-                            <FormLabel htmlFor={`platform-${field.id}`}>
-                              Platform
-                              <span className="text-red-600 font-bold ms-1">
-                                *
-                              </span>
-                            </FormLabel>
-                            <select
-                              id={`platform-${field.id}`}
-                              name="platform"
-                              value={field.platform}
-                              onChange={(e) =>
-                                handleDynamicInputChange(
-                                  field.id,
-                                  "platform",
-                                  e.target.value
-                                )
-                              }
-                              className="w-full px-4 py-2 text-sm border border-gray-300 rounded-lg shadow-sm hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow duration-200"
-                            >
-                              <option value="">Select Platform</option>
-                              <option value="ios">IOS</option>
-                              <option value="android">Android</option>
-                            </select>
-                            {dynamicFormErrors.find(
-                              (error) => error.id === field.id
-                            )?.platform && (
-                              <p className="mt-1 text-xs text-red-500">
-                                {
-                                  dynamicFormErrors.find(
-                                    (error) => error.id === field.id
-                                  )?.platform
-                                }
-                              </p>
-                            )}
-                          </div>
-                          <div className="col-span-12 sm:col-span-4">
-                            <FormLabel htmlFor={`forceupdate-${field.id}`}>
-                              Select Force Update
-                            </FormLabel>
-                            <select
-                              id={`forceupdate-${field.id}`}
-                              name="forceupdate"
-                              value={field.forceupdate}
-                              onChange={(e) =>
-                                handleDynamicInputChange(
-                                  field.id,
-                                  "forceupdate",
-                                  e.target.value
-                                )
-                              }
-                              className="w-full px-4 py-2 text-sm border border-gray-300 rounded-lg shadow-sm hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow duration-200"
-                            >
-                              {/* <option value="">Select Force Update</option> */}
-                              <option value="1">True</option>
-                              <option value="0">False</option>
-                            </select>
-                          </div>
-                          {/* <div className="col-span-12 sm:col-span-4">
-                            <Controller
-                              name="forceUpdateStatus"
-                              control={control}
-                              render={({ field: { value } }) => {
-                                const selectedState = forceUpdateDropdown?.find(
-                                  (option) => option.value === value
-                                );
-                                const selectedVal = forceUpdateDropdown?.find(
-                                  (option) =>
-                                    option.value ===
-                                    Number(filterForceUpdateStatus)
-                                );
-                                const defaultValue =
-                                  (selectedState === undefined
-                                    ? selectedVal
-                                    : selectedState) || null;
-
-                                return (
-                                  <Autocomplete
-                                    disablePortal
-                                    size="small"
-                                    id="combo-box-role"
-                                    componentsProps={{
-                                      popper: {
-                                        modifiers: [
-                                          { name: "flip", enabled: false },
-                                        ],
-                                      },
-                                    }}
-                                    value={defaultValue as any}
-                                    options={forceUpdateDropdown?.map(
-                                      (data) => ({
-                                        value: data.value,
-                                        label: capitalizeByCharacter(
-                                          data.label,
-                                          "_"
-                                        ),
-                                      })
-                                    )}
-                                    getOptionLabel={(option) =>
-                                      option.label ??
-                                      capitalizeByCharacter(option.label, "_")
-                                    }
-                                    onChange={(_, newVal) =>
-                                      filterByForceUpdateStatus(newVal?.value)
-                                    }
-                                    isOptionEqualToValue={(option, value) =>
-                                      option.value ===
-                                      (value.value ? value.value : null)
-                                    }
-                                    renderInput={(params) => (
-                                      <TextField
-                                        {...params}
-                                        label="Select Force Update"
-                                        className="custom-select w-full"
-                                        InputLabelProps={{
-                                          style: {
-                                            fontSize: 12,
-                                            color: `${
-                                              darkMode ? "inherit" : ""
-                                            }`,
-                                            paddingTop: 3,
-                                          },
-                                        }}
-                                      />
-                                    )}
-                                  />
-                                );
-                              }}
-                            />
-                          </div> */}
-                          <div className="col-span-12">
-                            <FormLabel htmlFor={`description-${field.id}`}>
-                              Version Description
-                              <span className="text-red-600 font-bold ms-1">
-                                *
-                              </span>
-                            </FormLabel>
-                            <textarea
-                              id={`description-${field.id}`}
-                              name="description"
-                              value={field.description}
-                              onChange={(e) =>
-                                handleDynamicInputChange(
-                                  field.id,
-                                  "description",
-                                  e.target.value
-                                )
-                              }
-                              className="w-full px-4 py-2 text-sm border border-gray-300 rounded-lg shadow-sm hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow duration-200"
-                              rows={4}
-                            />
-                            {dynamicFormErrors.find(
-                              (error) => error.id === field.id
-                            )?.description && (
-                              <p className="mt-1 text-xs text-red-500">
-                                {
-                                  dynamicFormErrors.find(
-                                    (error) => error.id === field.id
-                                  )?.description
-                                }
-                              </p>
-                            )}
-                          </div>
-
-                          <div className="col-span-12 flex justify-between">
-                            {dynamicFields.length === 1 ? (
-                              <Button
-                                variant="primary"
-                                type="button"
-                                onClick={handleAddMoreFields}
-                              >
-                                Add More Fields
-                              </Button>
-                            ) : (
-                              <React.Fragment>
-                                {index < dynamicFields.length - 1 ? (
-                                  <Button
-                                    variant="primary"
-                                    type="button"
-                                    className="bg-red-600"
-                                    onClick={() => handleRemoveField(field.id)}
-                                  >
-                                    Remove
-                                  </Button>
-                                ) : (
-                                  <React.Fragment>
-                                    <Button
-                                      variant="primary"
-                                      type="button"
-                                      className="bg-red-600"
-                                      onClick={() =>
-                                        handleRemoveField(field.id)
-                                      }
-                                    >
-                                      Remove
-                                    </Button>
-                                    <Button
-                                      variant="primary"
-                                      type="button"
-                                      onClick={handleAddMoreFields}
-                                    >
-                                      Add More Fields
-                                    </Button>
-                                  </React.Fragment>
-                                )}
-                              </React.Fragment>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    )
-                )}
+              {initFormData.isRelease && (
+                <VersionHistoryFields
+                  dynamicFields={dynamicFields}
+                  dynamicFormErrors={dynamicFormErrors}
+                  handleDynamicInputChange={handleDynamicInputChange}
+                  handleAddMoreFields={handleAddMoreFields}
+                  handleRemoveField={handleRemoveField}
+                />
+              )}
 
               {!initFormData.isRelease && (
                 <div className="col-span-12 intro-y sm:col-span-12">
