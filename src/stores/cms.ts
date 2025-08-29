@@ -34,69 +34,6 @@ const initialState: CmsState = {
   length: 0,
 };
 
-// Async thunk for updating a CMS entry
-// export const updateCmsEntry = createAsyncThunk(
-//   "cms/updateCmsEntry",
-//   async (
-//     data: {
-//       id: number;
-//       name?: string;
-//       title?: string;
-//       description?: string;
-//       meta_tags?: string;
-//       meta_description?: string;
-//       is_release: boolean;
-//       version_history?: Array<{
-//         id?: number | null;
-//         version_no: string;
-//         type: string;
-//         version_description: string;
-//         is_force_update: number;
-//         is_created?: number;
-//         is_updated?: number;
-//         is_deleted?: number;
-//       }>;
-//     },
-//     { dispatch, rejectWithValue }
-//   ) => {
-//     const headers: Record<string, string> = {
-//       Authorization: `Bearer ${localStorage.getItem("token")}`,
-//     };
-//     // Filter version_history to include only entries with version_no
-//     if (data?.version_history?.length !== 0 && data?.is_release) {
-//       data.version_history = data?.version_history?.filter(
-//         (version) => version.version_no
-//       );
-//     } else {
-//       data.version_history = [];
-//     }
-
-//     try {
-//       const response = await axios.put(`${API_PATH.EDIT_CMS}`, data, {
-//         headers,
-//       });
-
-//       dispatch(
-//         displayToast({
-//           msg: response.data.message || "CMS entry updated successfully.",
-//           type: "Success",
-//         })
-//       );
-//       return response.data;
-//     } catch (error: any) {
-//       dispatch(
-//         displayToast({
-//           msg: error.response?.data?.message || "Failed to update CMS entry.",
-//           type: "Error",
-//         })
-//       );
-//       return rejectWithValue(
-//         error.response?.data?.message || "Error updating CMS entry."
-//       );
-//     }
-//   }
-// );
-
 // Async thunk for fetching all CMS data
 export const fetchAllCmsData = createAsyncThunk(
   "cms/fetchAllCmsData",
@@ -140,6 +77,7 @@ export const addCmsEntry = createAsyncThunk(
       description: data.description,
       meta_tags: data.meta_tags,
       meta_description: data.meta_description,
+      enable: data.enable,
       version_history,
     };
 
@@ -180,6 +118,7 @@ export const updateCmsEntry = createAsyncThunk(
       meta_tags: data.meta_tags,
       meta_description: data.meta_description,
       is_release: data.is_release,
+      enable: data.enable,
       version_history,
     };
 
@@ -319,42 +258,6 @@ export const cmsSlice = createSlice({
         state.totalPages = 1;
         state.totalRecords = 0;
       })
-      // .addCase(updateCmsEntry.pending, (state) => {
-      //   state.loading = true;
-      // })
-      // .addCase(updateCmsEntry.fulfilled, (state, action) => {
-      //   state.loading = false;
-      //   state.error = false;
-      //   const updatedCms = action.payload.data;
-      //   const cmsIndex = state.cmsData.findIndex(
-      //     (item) => item.Id === updatedCms.Id
-      //   );
-      //   if (cmsIndex !== -1) {
-      //     state.cmsData[cmsIndex] = updatedCms;
-      //   }
-      // })
-      // .addCase(updateCmsEntry.rejected, (state) => {
-      //   state.loading = false;
-      //   state.error = true;
-      // })
-      // .addCase(deleteVersionHistory.pending, (state) => {
-      //   state.loading = true;
-      // })
-      // .addCase(deleteVersionHistory.fulfilled, (state, action) => {
-      //   state.loading = false;
-      //   state.error = false;
-      //   const cmsIndex = state.cmsData.findIndex(
-      //     (item) => item.Id === action.payload.cmsId
-      //   );
-      //   if (cmsIndex !== -1) {
-      //     state.cmsData[cmsIndex].Version_History =
-      //       action.payload.data.Version_History;
-      //   }
-      // })
-      // .addCase(deleteVersionHistory.rejected, (state) => {
-      //   state.loading = false;
-      //   state.error = true;
-      // })
       .addCase(fetchCmsDescription.pending, (state) => {
         state.loading = true;
       })

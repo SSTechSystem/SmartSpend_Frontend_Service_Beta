@@ -36,6 +36,7 @@ type InitialState = {
   meta_tags: string;
   meta_description: string;
   isRelease: boolean;
+  enable: boolean;
 };
 
 const initialState: InitialState = {
@@ -45,6 +46,7 @@ const initialState: InitialState = {
   meta_tags: "",
   meta_description: "",
   isRelease: false,
+  enable: true,
 };
 
 type TextInputState = {
@@ -54,6 +56,7 @@ type TextInputState = {
   meta_tags: string;
   meta_description: string;
   isRelease: boolean;
+  enable: boolean;
 };
 
 type FormState = TextInputState;
@@ -270,6 +273,7 @@ const AddDetails: React.FC = () => {
         is_release: initFormData.isRelease,
         meta_tags: updatedData.meta_tags,
         meta_description: updatedData.meta_description,
+        enable: updatedData.enable,
         version_history: dynamicFields.map((field) => ({
           id: typeof field.id === "string" ? Number(field.id) : field.id,
           version_no: field.versionNumber,
@@ -383,6 +387,7 @@ const AddDetails: React.FC = () => {
                 : false,
             meta_tags: response?.data?.data?.meta_tags || "",
             meta_description: response?.data?.data?.meta_description || "",
+            enable: response?.data?.data?.enable,
           });
           if (response?.data?.data?.version_history?.length !== 0) {
             setDynamicFields(
@@ -571,6 +576,19 @@ const AddDetails: React.FC = () => {
                 />
               </div>
 
+              <div className="col-span-12 intro-y sm:col-span-12">
+                  <FormLabel htmlFor="enable">Enable</FormLabel>
+                  <FormCheck>
+                    <FormCheck.Input
+                      id="enable"
+                      type="checkbox"
+                      name="enable"
+                      checked={initFormData.enable}
+                      onChange={(e) => handleInputChange(e, "enable")}
+                    />
+                  </FormCheck>
+                </div>
+
               <div className="flex items-center col-span-12 mt-5 intro-y">
                 <Button variant="primary" type="submit" onClick={handleSubmit}>
                   {isLoading ? (
@@ -585,7 +603,6 @@ const AddDetails: React.FC = () => {
                   className="ml-2"
                   type="button"
                   onClick={() => {
-                    localStorage.removeItem("supports");
                     navigate("/cms");
                   }}
                 >

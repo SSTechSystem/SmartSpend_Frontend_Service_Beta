@@ -16,7 +16,7 @@ import clsx from "clsx";
 import { Preview } from "../../base-components/PreviewComponent";
 import LoadingIcon from "../../base-components/LoadingIcon";
 import logoUrl from "../../assets/images/SmratSpendSVG.png";
-import logoDarkUrl from "../../assets/images/driver007.png";
+import logoDarkUrl from "../../assets/images/SmratSpendSVG.png";
 import Lucide from "../../base-components/Lucide";
 import DarkModeSwitcher from "../../components/DarkModeSwitcher";
 import MainColorSwitcher from "../../components/MainColorSwitcher";
@@ -123,7 +123,7 @@ const ResetPassword: React.FC = () => {
         <div className="w-96 intro-y box px-5 py-5 max-w-[450px] relative before:content-[''] before:z-[-1] before:w-[95%] before:h-full before:-mt-5 before:absolute before:rounded-lg before:mx-auto before:inset-x-0">
           <img
             className="w-32 sm:w-40 mx-auto"
-            alt="Driver 007"
+            alt="SmartSpend"
             src={darkMode ? logoUrl : logoDarkUrl}
           />
           <div className="text-sm sm:text-2xl font-medium text-center dark:text-slate-300 mt-5">
